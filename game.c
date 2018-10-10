@@ -6,6 +6,7 @@
 #include "timer.h"
 #include "../fonts/font3x5_1.h"
 #include <stdbool.h>
+#include "navswitch.h"
 
 #define DISPLAY_TASK_RATE 250
 #define SOLID_LED_RATE 250
@@ -15,7 +16,7 @@
 #define SOLID 0
 #define FLASHING 1
 #define ATK 0
-#define DEf 1
+#define DEF 1
 
 int flashWait_on = 100;
 int flashWait_off = 0;
@@ -73,27 +74,27 @@ static void wait_flash (void)
 //Returns true (1) if the given point is already in the given lightType array
 bool in(tinygl_point_t point, int lightType, int screen) { //screen either ATK (0) or DEF (1)
 
-    tinygl_point_t points[];
+    tinygl_point_t* points;
     int numPoints;
     int i = 0;
 
     //Work out which array to check
     if (lightType == SOLID && screen == ATK) {
-        array = solidPointsAtk;
+        points = solidPointsAtk;
         numPoints = numSolidAtk;
     } else if (lightType == FLASHING && screen == ATK) {
-        array = flashingPointsAtk;
+        points = flashingPointsAtk;
         numPoints = numFlashingAtk;
     } else if (lightType == SOLID && screen == DEF) {
-        array = solidPointsDef;
+        points = solidPointsDef;
         numPoints = numSolidDef;
     } else if (lightType == FLASHING && screen == DEF) {
-        array = flashingPointsDef;
+        points = flashingPointsDef;
         numPoints = numFlashingDef;
     }
 
     for (; i < numPoints; i++) {
-        if (point.x == points[i].x && point.y == points[i]) {
+        if (point.x == points[i].x && point.y == points[i].y) {
             return true;
         }
     }
@@ -101,15 +102,25 @@ bool in(tinygl_point_t point, int lightType, int screen) { //screen either ATK (
 }
 
 static void addPoint(tinygl_point_t point, int lightType, int screen) { //lightType either SOLID (0) or FLASHING(1)
-    if (lightType == SOLID) {
-        if (!in(point, SOLID)) {
-            solidPointsAtk[numSolid] = point;
-            numSolid++;
-        }
+    tinygl_point_t* points;
+    int* numPoints;
 
-    } else if (lightType == FLASHING) {
-
+    if (lightType == SOLID && screen == ATK) {
+        points = solidPointsAtk;
+        numPoints = &numSolidAtk;
+    } else if (lightType == FLASHING && screen == ATK) {
+        points = flashingPointsAtk;
+        numPoints = &numFlashingAtk;
+    } else if (lightType == SOLID && screen == DEF) {
+        points = solidPointsDef;
+        numPoints = &numSolidDef;
+    } else if (lightType == FLASHING && screen == DEF) {
+        points = flashingPointsDef;
+        numPoints = &numFlashingDef;
     }
+
+    points[*numPoints] = point;
+    *numPoints = *numPoints + 1;
 }
 
 int main (void)
@@ -118,8 +129,8 @@ int main (void)
     solidPointsAtk[2] = tinygl_point(2,4); solidPointsAtk[3] = tinygl_point(3,3);
     numSolidAtk += 2; numSolidAtk += 2;
 
-    flashingPointsDef[0] = tinygl_point(1,5); flashingPointsDef[1] = tinygl_point(3,0);
-    flashingPointsDef[2] = tinygl_point(0,3); flashingPointsDef[3] = tinygl_point(4,3);
+    flashingPointsAtk[0] = tinygl_point(1,5); flashingPointsAtk[1] = tinygl_point(3,0);
+    flashingPointsAtk[2] = tinygl_point(0,3); flashingPointsAtk[3] = tinygl_point(4,3);
     numFlashingAtk += 4;
 /*
     tinygl_point_t ghosting_points[] = {
@@ -146,10 +157,11 @@ int main (void)
     pacer_init (250);
     tinygl_init (DISPLAY_TASK_RATE);
     timer_init();
+    navswitch_init();
 
     //task_schedule (tasks, ARRAY_SIZE (tasks));
 
-    display_points(solidPointsAtk, numSolid);
+    display_points(solidPointsAtk, numSolidAtk);
 
 
 
@@ -162,17 +174,22 @@ int main (void)
             if (on) { //If flashing lights are currently on
                 if (flashWait_on == 0) {
                     on = 0;
-                    hidePoints(flashingPointsDef, numFlashing);
+                    hidePoints(flashingPointsAtk, numFlashingAtk);
                     flashWait_off = 100;
                 } else {flashWait_on--;}
             } else { //If flashing lights are currently off
                 if (flashWait_off == 0) {
                     on = 1;
-                    display_points(flashingPointsDef, numFlashing);
+                    display_points(flashingPointsAtk, numFlashingAtk);
                     flashWait_on = 100;
                 } else {
                     flashWait_off--;
                 }
+            }
+
+            if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
+                //addPoint(tinygl_point(0, 0), FLASHING, ATK);
+                tinygl_draw_point(tinygl_point(0, 0), 1);
             }
 
             //Attempt at getting ghosting working
