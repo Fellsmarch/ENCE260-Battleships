@@ -1,6 +1,6 @@
 # File:   Makefile
-# Author: M. P. Hayes, UCECE
-# Date:   12 Sep 2010
+# Author: Harrison Cook, hgc25
+# Date:   11 October 2018
 # Descr:  Makefile for game
 
 # Definitions.
@@ -16,7 +16,10 @@ all: game.out
 
 
 # Compile: create object files from C source files.
-game.o: game.c ./drivers/avr/system.h ./utils/tinygl.h ./drivers/display.h ./fonts/font3x5_1.h ./utils/font.h ./drivers/avr/timer.h ./drivers/navswitch.h
+game.o: game.c ./drivers/avr/system.h ./utils/tinygl.h ./drivers/display.h ./fonts/font3x5_1.h ./utils/font.h ./drivers/avr/timer.h ./drivers/navswitch.h lights.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+lights.o: lights.c ./drivers/avr/system.h ./utils/tinygl.h lights.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 system.o: ./drivers/avr/system.c ./drivers/avr/system.h
@@ -68,7 +71,7 @@ task.o: ./utils/task.c ./drivers/avr/system.h ./drivers/avr/timer.h ./utils/task
 
 
 # Link: create ELF output file from object files.
-game.out: game.o pio.o system.o timer.o button.o display.o ledmat.o font.o pacer.o tinygl.o ir_uart.o prescale.o timer0.o usart1.o navswitch.o task.o
+game.out: game.o lights.o pio.o system.o timer.o button.o display.o ledmat.o font.o pacer.o tinygl.o ir_uart.o prescale.o timer0.o usart1.o navswitch.o task.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 
