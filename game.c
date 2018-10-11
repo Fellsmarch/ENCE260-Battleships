@@ -46,37 +46,6 @@
 //     }
 // }
 
-
-//Returns true (1) if the given point is already in the given lightType array
-// bool in(tinygl_point_t point, int lightType, int screen) { //screen either ATK (0) or DEF (1)
-//
-//     tinygl_point_t* points;
-//     int numPoints;
-//     int i = 0;
-//
-//     //Work out which array to check
-//     if (lightType == SOLID && screen == ATK) {
-//         points = solidPointsAtk;
-//         numPoints = numSolidAtk;
-//     } else if (lightType == FLASHING && screen == ATK) {
-//         points = flashingPointsAtk;
-//         numPoints = numFlashingAtk;
-//     } else if (lightType == SOLID && screen == DEF) {
-//         points = solidPointsDef;
-//         numPoints = numSolidDef;
-//     } else if (lightType == FLASHING && screen == DEF) {
-//         points = flashingPointsDef;
-//         numPoints = numFlashingDef;
-//     }
-//
-//     for (; i < numPoints; i++) {
-//         if (point.x == points[i].x && point.y == points[i].y) {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
-
 // static void addPoint(tinygl_point_t point, int lightType, int screen) { //lightType either SOLID (0) or FLASHING(1) screen either ATK (0) or DEF (1)
 //     tinygl_point_t* points;
 //     int* numPoints;
@@ -117,36 +86,15 @@ int main (void)
     flashingPointsAtk[0] = tinygl_point(1,5); flashingPointsAtk[1] = tinygl_point(3,0);
     flashingPointsAtk[2] = tinygl_point(0,3); flashingPointsAtk[3] = tinygl_point(4,3);
     numFlashingAtk += 4;
-/*
-    tinygl_point_t ghosting_points[] = {
-        tinygl_point(0,0), tinygl_point(0,1), tinygl_point(0,2), tinygl_point(0,4)
-        };
-*/
 
-
-/*
-    task_t tasks[] =
-            {
-                {.func = display_task, .period = TASK_RATE / DISPLAY_TASK_RATE},
-                {.func = display_points, .period = TASK_RATE / SOLID_LED_RATE, .data = solidPointsAtk},
-                //{.func = wait_flash, .period = TASK_RATE / WAIT_TIME},
-                {.func = display_points, .period = TASK_RATE / FLASHING_LED_RATE, .data = flashingPointsDef},
-                //{.func = hidePoints, .period = TASK_RATE / FLASHING_LED_RATE, .data = flashingPointsDef},
-                //{.func = tinygl_clear, .period = TASK_RATE / DISPLAY_TASK_RATE},
-                //{.func = display_points, .period = TASK_RATE / SOLID_LED_RATE, .data = solidPointsAtk},
-            };
-*/
-
-
+    //Initialisation
     system_init ();
     pacer_init (250);
     tinygl_init (DISPLAY_TASK_RATE);
     timer_init();
     navswitch_init();
 
-    //task_schedule (tasks, ARRAY_SIZE (tasks));
 
-    displayPoints(solidPointsAtk, numSolidAtk);
 
     int newShot = 0;
     int newShot_On = 0;
@@ -158,11 +106,18 @@ int main (void)
     int flashWait_off = 0;
     int on = 0; //Flashing lights on / off
 
+    int solidUpdated = 1;
+
     while (1)
         {
             pacer_wait ();
             tinygl_update ();
             navswitch_update ();
+
+            if (solidUpdated) {
+                displayPoints(solidPointsAtk, numSolidAtk);
+                solidUpdated = 0;
+            }
 
             //Flashes the flashing lights
             if (on) { //If flashing lights are currently on

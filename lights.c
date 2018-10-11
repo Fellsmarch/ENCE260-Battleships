@@ -84,7 +84,7 @@ void addPoint(tinygl_point_t point, int lightType, int screen) { //lightType eit
     } else if (lightType == SOLID && screen == DEF) {
         points = solidPointsDef;
         numPoints = &numSolidDef;
-    } else if (lightType == FLASHING && screen == DEF) {
+    } else {//if (lightType == FLASHING && screen == DEF) { //Using else otherwise program thinks these variables are uninitialised
         points = flashingPointsDef;
         numPoints = &numFlashingDef;
     }
@@ -105,7 +105,7 @@ void addPoint(tinygl_point_t point, int lightType, int screen) { //lightType eit
 void flashLights(int lightOn) { //, int screen) { //Screen will be ATK/DEF
     int flashWait_on = 100;
     int flashWait_off = 0;
-    int on = 0; //Flashing lights on / off
+    //int lightOn = 0; //Flashing lights on / off
     static int duration = 100;
     if (lightOn) { //If flashing lights are currently on
         if (flashWait_on == 0) {
@@ -124,11 +124,11 @@ void flashLights(int lightOn) { //, int screen) { //Screen will be ATK/DEF
     }
 }
 
-void flashLights_fast() {
-    int newShot = 0;
-    int newShot_On = 0;
-    int newShot_Off = 40;
-    int newShotDisplaying = 0;
-    tinygl_point_t newShotPos[1];
-
-}
+// void flashLights_fast() {
+//     int newShot = 0;
+//     int newShot_On = 0;
+//     int newShot_Off = 40;
+//     int newShotDisplaying = 0;
+//     tinygl_point_t newShotPos[1];
+//
+// }
