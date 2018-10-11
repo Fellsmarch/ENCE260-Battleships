@@ -1,4 +1,4 @@
-/** @file   lights.c
+/** @file   lights.h
     @author Harrison Cook, hgc25
     @date   11 October 2018
     @brief  Display lights for battleships game
