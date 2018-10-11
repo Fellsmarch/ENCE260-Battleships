@@ -13,6 +13,16 @@
 #define SOLID_LED_RATE 250
 #define FLASHING_LED_RATE 250
 #define WAIT_TIME 250
+
+enum { //These will be automatically numbered by enum
+    r0_c0, r0_c1, r0_c2, r0_c3, r0_c4, //Row 0
+    r1_c0, r1_c1, r1_c2, r1_c3, r1_c4, //Row 1
+    r2_c0, r2_c1, r2_c2, r2_c3, r2_c4, //Row 2
+    r3_c0, r3_c1, r3_c2, r3_c3, r3_c4, //Row 3
+    r4_c0, r4_c1, r4_c2, r4_c3, r4_c4, //Row 4
+    r5_c0, r5_c1, r5_c2, r5_c3, r5_c4, //Row 5
+    r6_c0, r6_c1, r6_c2, r6_c3, r6_c4, //Row 6
+};
 // #define NUM_LEDS 35
 // #define SOLID 0
 // #define FLASHING 1
@@ -77,6 +87,7 @@
 //     }
 // }
 
+//We can make ship placement run its own while loop until ships have been placed
 int main (void)
 {
     solidPointsAtk[0] = tinygl_point(4,6); solidPointsAtk[1] = tinygl_point(2,6);
