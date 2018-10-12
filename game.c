@@ -8,21 +8,15 @@
 #include <stdbool.h>
 #include "navswitch.h"
 #include "lights.h"
+#include "setupGame.c"
+#include "pio.h"
 
 #define DISPLAY_TASK_RATE 250
 #define SOLID_LED_RATE 250
 #define FLASHING_LED_RATE 250
 #define WAIT_TIME 250
 
-enum { //These will be automatically numbered by enum
-    r0_c0, r0_c1, r0_c2, r0_c3, r0_c4, //Row 0
-    r1_c0, r1_c1, r1_c2, r1_c3, r1_c4, //Row 1
-    r2_c0, r2_c1, r2_c2, r2_c3, r2_c4, //Row 2
-    r3_c0, r3_c1, r3_c2, r3_c3, r3_c4, //Row 3
-    r4_c0, r4_c1, r4_c2, r4_c3, r4_c4, //Row 4
-    r5_c0, r5_c1, r5_c2, r5_c3, r5_c4, //Row 5
-    r6_c0, r6_c1, r6_c2, r6_c3, r6_c4, //Row 6
-};
+
 // #define NUM_LEDS 35
 // #define SOLID 0
 // #define FLASHING 1
@@ -88,15 +82,16 @@ enum { //These will be automatically numbered by enum
 // }
 
 //We can make ship placement run its own while loop until ships have been placed
+
 int main (void)
 {
     solidPointsAtk[0] = tinygl_point(4,6); solidPointsAtk[1] = tinygl_point(2,6);
     solidPointsAtk[2] = tinygl_point(2,4); solidPointsAtk[3] = tinygl_point(3,3);
     numSolidAtk += 2; numSolidAtk += 2;
-
-    flashingPointsAtk[0] = tinygl_point(1,5); flashingPointsAtk[1] = tinygl_point(3,0);
-    flashingPointsAtk[2] = tinygl_point(0,3); flashingPointsAtk[3] = tinygl_point(4,3);
-    numFlashingAtk += 4;
+    //
+    // flashingPointsAtk[0] = tinygl_point(1,5); flashingPointsAtk[1] = tinygl_point(3,0);
+    // flashingPointsAtk[2] = tinygl_point(0,3); flashingPointsAtk[3] = tinygl_point(4,3);
+    // numFlashingAtk += 4;
 
     //Initialisation
     system_init ();
@@ -118,6 +113,7 @@ int main (void)
     int on = 0; //Flashing lights on / off
 
     int solidUpdated = 1;
+    int firstPlace = 0;
 
     while (1)
         {
@@ -125,9 +121,23 @@ int main (void)
             tinygl_update ();
             navswitch_update ();
 
+
+
+
             if (solidUpdated) {
                 displayPoints(solidPointsAtk, numSolidAtk);
                 solidUpdated = 0;
+            }
+
+            if (!firstPlace) {
+                int shipSize = 4;
+                int newShip[4];
+                int i = 0;
+                setup(newShip, shipSize, solidPointsAtk, numSolidAtk);
+                addPoint(tinygl_point(newShip[0], newShip[1]), SOLID, ATK);
+                addPoint(tinygl_point(newShip[2], newShip[3]), SOLID, ATK);
+                solidUpdated = 1;
+                firstPlace = 1;
             }
 
             //Flashes the flashing lights
