@@ -124,5 +124,11 @@ int main(void)
         if (button_push_event_p (0)) {
             ir_uart_putc(sendShot(&shot));
         }
+        if (ir_uart_read_ready_p()) {
+            int coord = ir_uart_getc();
+            shot.col = coord & 0x0F;
+            shot.row = (coord & 0xF0) >> 4;
+            drawShot(shot, 1);
+        }
     }
 }
