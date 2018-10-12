@@ -8,86 +8,38 @@
 #include <stdbool.h>
 #include "navswitch.h"
 #include "lights.h"
-#include "setupGame.c"
-#include "pio.h"
+#include "setupGame.h"
 
 #define DISPLAY_TASK_RATE 250
 #define SOLID_LED_RATE 250
 #define FLASHING_LED_RATE 250
 #define WAIT_TIME 250
 
+int pointsIdentical(tinygl_point_t point1, tinygl_point_t point2)
+{
+    return (point1.x == point2.x && point1.y == point2.y);
+}
 
-// #define NUM_LEDS 35
-// #define SOLID 0
-// #define FLASHING 1
-// #define ATK 0
-// #define DEF 1
-//
-// int numFlashingAtk = 0;
-// int numSolidAtk = 0;
-// tinygl_point_t solidPointsAtk[NUM_LEDS];
-// tinygl_point_t flashingPointsAtk[NUM_LEDS];
-//
-// int numFlashingDef = 0;
-// int numSolidDef = 0;
-// tinygl_point_t solidPointsDef[NUM_LEDS];
-// tinygl_point_t flashingPointsDef[NUM_LEDS];
-//
-//
-// static void display_points (tinygl_point_t points[], int numPoints)
-// {
-//     int i = 0;
-//     for (; i < numPoints; i++) {
-//         tinygl_draw_point(points[i], 1);
-//     }
-// }
-//
-// static void hidePoints (tinygl_point_t points[], int numPoints)
-// {
-//     int i = 0;
-//     for (; i < numPoints; i++) {
-//         tinygl_draw_point(points[i], 0);
-//     }
-// }
+int shipConflict(Ship ship)
+{
+    tinygl_point_t point1 = tinygl_point(ship.col1, ship.row1);
+    tinygl_point_t point2 = tinygl_point(ship.col2, ship.row2);
+    int i = 0;
+    for (; i < numSolidAtk; i++) {
+        if (pointsIdentical(solidPointsAtk[i], point1)
+        || pointsIdentical(solidPointsAtk[i], point2)) {
+            return true;
+        }
+    }
+    return false;
+}
 
-// static void addPoint(tinygl_point_t point, int lightType, int screen) { //lightType either SOLID (0) or FLASHING(1) screen either ATK (0) or DEF (1)
-//     tinygl_point_t* points;
-//     int* numPoints;
-//
-//     if (lightType == SOLID && screen == ATK) {
-//         points = solidPointsAtk;
-//         numPoints = &numSolidAtk;
-//     } else if (lightType == FLASHING && screen == ATK) {
-//         points = flashingPointsAtk;
-//         numPoints = &numFlashingAtk;
-//     } else if (lightType == SOLID && screen == DEF) {
-//         points = solidPointsDef;
-//         numPoints = &numSolidDef;
-//     } else if (lightType == FLASHING && screen == DEF) {
-//         points = flashingPointsDef;
-//         numPoints = &numFlashingDef;
-//     }
-//
-//     //Checks whether the point is in the array already (replaces in function)
-//     bool pointFound = false;
-//     for (; i < *numPoints; i++) {
-//         if (point.x == points[i].x && point.y == points[i].y) {
-//             pointFound = true;
-//         }
-//     }
-//     if (!pointFound) {
-//         points[*numPoints] = point;
-//         *numPoints = *numPoints + 1;
-//     }
-// }
-
-//We can make ship placement run its own while loop until ships have been placed
 
 int main (void)
 {
-    solidPointsAtk[0] = tinygl_point(4,6); solidPointsAtk[1] = tinygl_point(2,6);
-    solidPointsAtk[2] = tinygl_point(2,4); solidPointsAtk[3] = tinygl_point(3,3);
-    numSolidAtk += 2; numSolidAtk += 2;
+    solidPointsAtk[0] = tinygl_point(4,6); solidPointsAtk[1] = tinygl_point(3,6);
+    // solidPointsAtk[2] = tinygl_point(2,4); solidPointsAtk[3] = tinygl_point(3,3);
+    numSolidAtk += 2; //numSolidAtk += 2;
     //
     // flashingPointsAtk[0] = tinygl_point(1,5); flashingPointsAtk[1] = tinygl_point(3,0);
     // flashingPointsAtk[2] = tinygl_point(0,3); flashingPointsAtk[3] = tinygl_point(4,3);
@@ -95,10 +47,11 @@ int main (void)
 
     //Initialisation
     system_init ();
-    pacer_init (250);
+    pacer_init (DISPLAY_TASK_RATE);
     tinygl_init (DISPLAY_TASK_RATE);
     timer_init();
     navswitch_init();
+    button_init();
 
 
 
@@ -121,24 +74,12 @@ int main (void)
             tinygl_update ();
             navswitch_update ();
 
-
-
-
             if (solidUpdated) {
                 displayPoints(solidPointsAtk, numSolidAtk);
                 solidUpdated = 0;
             }
 
-            if (!firstPlace) {
-                int shipSize = 4;
-                int newShip[4];
-                int i = 0;
-                setup(newShip, shipSize, solidPointsAtk, numSolidAtk);
-                addPoint(tinygl_point(newShip[0], newShip[1]), SOLID, ATK);
-                addPoint(tinygl_point(newShip[2], newShip[3]), SOLID, ATK);
-                solidUpdated = 1;
-                firstPlace = 1;
-            }
+
 
             //Flashes the flashing lights
             if (on) { //If flashing lights are currently on
@@ -184,8 +125,20 @@ int main (void)
             }
 
             if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-                newShot = 5;
-                newShotPos[0] = tinygl_point(0, 0);
+                // int shipSize = 4;
+                // int newShip[4];
+                // int ship_placed = false;
+                // setup(newShip, shipSize);//, solidPointsAtk, numSolidAtk);
+                // addPoint(tinygl_point(newShip[0], newShip[1]), SOLID, ATK);
+                // addPoint(tinygl_point(newShip[2], newShip[3]), SOLID, ATK);
+                // shipSize = 2;
+                // while(!ship_placed) {
+                //     setup(newShip, shipSize);
+                //
+                // }
+                solidUpdated = 1;
+                // newShot = 5;
+                // newShotPos[0] = tinygl_point(0, 0);
                 //tinygl_draw_line(tinygl_point(0, 0), tinygl_point(4,4), 1);
             }
        }
