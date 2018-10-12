@@ -12,11 +12,11 @@ DEL = rm
 
 
 # Default target.
-all: setupGame.out
+all: shoot.out
 
 
 # Compile: create object files from C source files.
-setupGame.o: setupGame.c ../drivers/avr/system.h ../drivers/avr/system.h ../utils/tinygl.h ../drivers/display.h
+shoot.o: shoot.c ../drivers/avr/system.h ../drivers/avr/system.h ../utils/tinygl.h ../drivers/display.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 system.o: ../drivers/avr/system.c ../drivers/avr/system.h
@@ -64,7 +64,7 @@ navswitch.o: ../drivers/navswitch.c ../drivers/avr/delay.h ../drivers/avr/pio.h 
 
 
 # Link: create ELF output file from object files.
-setupGame.out: setupGame.o pio.o system.o timer.o button.o display.o ledmat.o font.o pacer.o tinygl.o ir_uart.o prescale.o timer0.o usart1.o navswitch.o
+shoot.out: shoot.o pio.o system.o timer.o button.o display.o ledmat.o font.o pacer.o tinygl.o ir_uart.o prescale.o timer0.o usart1.o navswitch.o
 	$(CC) $(CFLAGS) $^ -o $@ -lm
 	$(SIZE) $@
 
@@ -77,9 +77,9 @@ clean:
 
 # Target: program project.
 .PHONY: program
-program: setupGame.out
-	$(OBJCOPY) -O ihex setupGame.out setupGame.hex
-	dfu-programmer atmega32u2 erase; dfu-programmer atmega32u2 flash setupGame.hex; dfu-programmer atmega32u2 start
+program: shoot.out
+	$(OBJCOPY) -O ihex shoot.out shoot.hex
+	dfu-programmer atmega32u2 erase; dfu-programmer atmega32u2 flash shoot.hex; dfu-programmer atmega32u2 start
 
 
 #
