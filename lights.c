@@ -70,7 +70,8 @@ void hidePoints (tinygl_point_t points[], int numPoints)
     @return this never returns.
 */
 //Could make a function that finds the array and returns a pointer to it instead of doing it in this function
-void addPoint(tinygl_point_t point, int lightType, int screen) { //lightType either SOLID (0) or FLASHING(1) screen either ATK (0) or DEF (1)
+void addPoint(tinygl_point_t point, int lightType, int screen)
+{ //lightType either SOLID (0) or FLASHING(1) screen either ATK (0) or DEF (1)
     tinygl_point_t* points;
     int* numPoints;
     int i = 0;
@@ -89,7 +90,7 @@ void addPoint(tinygl_point_t point, int lightType, int screen) { //lightType eit
         numPoints = &numFlashingDef;
     }
 
-    //Checks whether the point is in the array already (replaces in function)
+    //Could use the in function here but that would mean it has to check all the variables again
     bool pointFound = false;
     for (; i < *numPoints; i++) {
         if (point.x == points[i].x && point.y == points[i].y) {
@@ -102,7 +103,37 @@ void addPoint(tinygl_point_t point, int lightType, int screen) { //lightType eit
     }
 }
 
-void flashLights(int lightOn) { //, int screen) { //Screen will be ATK/DEF
+bool in(tinygl_point_t point, int lightType, int screen)
+{ //lightType either SOLID (0) or FLASHING(1) screen either ATK (0) or DEF (1)
+    tinygl_point_t* points;
+    int* numPoints;
+    int i = 0;
+
+    if (lightType == SOLID && screen == ATK) {
+        points = solidPointsAtk;
+        numPoints = &numSolidAtk;
+    } else if (lightType == FLASHING && screen == ATK) {
+        points = flashingPointsAtk;
+        numPoints = &numFlashingAtk;
+    } else if (lightType == SOLID && screen == DEF) {
+        points = solidPointsDef;
+        numPoints = &numSolidDef;
+    } else {//if (lightType == FLASHING && screen == DEF) { //Using else otherwise program thinks these variables are uninitialised
+        points = flashingPointsDef;
+        numPoints = &numFlashingDef;
+    }
+
+    //Checks whether the point is in the array already
+    for (; i < *numPoints; i++) {
+        if (point.x == points[i].x && point.y == points[i].y) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void flashLights(int lightOn)
+{ //, int screen) { //Screen will be ATK/DEF
     int flashWait_on = 100;
     int flashWait_off = 0;
     //int lightOn = 0; //Flashing lights on / off

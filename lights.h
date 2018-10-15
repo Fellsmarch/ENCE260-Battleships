@@ -20,13 +20,13 @@
 
 int numFlashingAtk;
 int numSolidAtk;
-tinygl_point_t solidPointsAtk[];
-tinygl_point_t flashingPointsAtk[];
+tinygl_point_t solidPointsAtk[NUM_LEDS];
+tinygl_point_t flashingPointsAtk[NUM_LEDS];
 
 int numFlashingDef;
 int numSolidDef;
-tinygl_point_t solidPointsDef[];
-tinygl_point_t flashingPointsDef[];
+tinygl_point_t solidPointsDef[NUM_LEDS];
+tinygl_point_t flashingPointsDef[NUM_LEDS];
 
 /** Display points on LED matrix
     @param points array of points to display
@@ -49,3 +49,11 @@ void hidePoints (tinygl_point_t points[], int numPoints);
     @return this never returns.
 */
 void addPoint(tinygl_point_t point, int lightType, int screen);
+
+/** Returns true if the point is in the corresponding array
+    @param point point to add
+    @param lightType type of light (flashing or solid)
+    @param screen what screen the point should be added to (atk/def)
+    @return true or false.
+*/
+bool in(tinygl_point_t point, int lightType, int screen);

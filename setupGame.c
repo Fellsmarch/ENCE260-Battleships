@@ -35,17 +35,12 @@ void getPoints(tinygl_point_t* array, int* shipBounds) {
     int row1 = shipBounds[1];
     int col2 = shipBounds[2];
     int row2 = shipBounds[3];
-    // int col1 = 3;
-    // int col2 = 3;
-    // int row1 = 1;
-    // int row2 = 4;
     int i = 0;
 
     if (col1 == col2) {
         if (row1 < row2) {
             while (row1 <= row2) {
                 array[i] = tinygl_point(col1, row1);
-                // addPoint(tinygl_point(col1, row1), SOLID, ATK);
                 row1++;
                 i++;
             }
@@ -53,7 +48,6 @@ void getPoints(tinygl_point_t* array, int* shipBounds) {
         } else if (row1 >= row2) {
             while (row1 >= row2) {
                 array[i] = tinygl_point(col1, row2);
-                // addPoint(tinygl_point(col1, row2), SOLID, ATK);
                 row2++;
                 i++;
             }
@@ -63,7 +57,6 @@ void getPoints(tinygl_point_t* array, int* shipBounds) {
         if (col1 < col2) {
             while (col1 <= col2) {
                 array[i] = tinygl_point(col1, row1);
-                // addPoint(tinygl_point(col1, row1), SOLID, ATK);
                 col1++;
                 i++;
             }
@@ -71,7 +64,6 @@ void getPoints(tinygl_point_t* array, int* shipBounds) {
         } else if (col1 >= col2) {
             while (col1 >= col2) {
                 array[i] = tinygl_point(col2, row1);
-                // addPoint(tinygl_point(col2, row1), SOLID, ATK);
                 col2++;
                 i++;
             }
@@ -178,9 +170,9 @@ int shipConflict(Ship ship)
     tinygl_point_t point1 = tinygl_point(ship.col1, ship.row1);
     tinygl_point_t point2 = tinygl_point(ship.col2, ship.row2);
     int i = 0;
-    for (; i < numSolidAtk; i++) {
-        if (pointsIdentical(solidPointsAtk[i], point1)
-        || pointsIdentical(solidPointsAtk[i], point2)) {
+    for (; i < numSolidDef; i++) {
+        if (pointsIdentical(solidPointsDef[i], point1)
+        || pointsIdentical(solidPointsDef[i], point2)) {
             return 1;
         }
     }
@@ -192,7 +184,6 @@ void placeShips(void)
     int firstShipSize = 4;
     int secondShipSize = 2;
     int secondShipPlaced = 0;
-    Ship newShip;
 
     int* firstShipBounds[firstShipSize];
     int* secondShipBounds[secondShipSize];
@@ -210,7 +201,7 @@ void placeShips(void)
     int j = 0;
     int i = 0;
     for (; j < firstShipSize; j++) {
-        addPoint(firstShip[j], SOLID, ATK);
+        addPoint(firstShip[j], SOLID, DEF);
     }
 
 
@@ -234,7 +225,7 @@ void placeShips(void)
     }
     i = 0;
     for (; i < secondShipSize; i++) {
-        addPoint(secondShip[i], SOLID, ATK);
+        addPoint(secondShip[i], SOLID, DEF);
     }
 
 }
@@ -289,7 +280,7 @@ void setup (int shipSize, int* toReturn)//(int* toReturn, int shipSize)//, int* 
 
             // tinygl_draw_point(tinygl_point(4,6), 1);
             // tinygl_draw_point(tinygl_point(3,6), 1);
-            displayPoints(solidPointsAtk, numSolidAtk);
+            displayPoints(solidPointsDef, numSolidDef);
 
         }
 }

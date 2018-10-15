@@ -51,6 +51,8 @@ int main (void)
     int solidUpdated = 1;
     int firstPlace = 0;
 
+    int currentScreen = DEF;
+
     while (1)
         {
             pacer_wait ();
@@ -58,8 +60,13 @@ int main (void)
             navswitch_update ();
 
             if (solidUpdated) {
-                displayPoints(solidPointsAtk, numSolidAtk);
-                solidUpdated = 0;
+                if (currentScreen == ATK) {
+                    displayPoints(solidPointsAtk, numSolidAtk);
+                } else if (currentScreen == DEF) {
+                    displayPoints(solidPointsDef, numSolidDef);
+                }
+
+                solidUpdated = 1;
             }
 
 
@@ -109,21 +116,13 @@ int main (void)
 
             if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
                 placeShips();
-                // int shipSize = 4;
-                // int newShip[4];
-                // int ship_placed = false;
-                // setup(newShip, shipSize);//, solidPointsAtk, numSolidAtk);
-                // addPoint(tinygl_point(newShip[0], newShip[1]), SOLID, ATK);
-                // addPoint(tinygl_point(newShip[2], newShip[3]), SOLID, ATK);
-                // shipSize = 2;
-                // while(!ship_placed) {
-                //     setup(newShip, shipSize);
-                //
-                // }
+
+                displayPoints(solidPointsAtk, numSolidAtk);
+                if (in(tinygl_point(0, 0), SOLID, DEF)) {
+                    addPoint(tinygl_point(4,6), SOLID, DEF);
+                }
+                displayPoints(solidPointsDef, numSolidDef);
                 solidUpdated = 1;
-                // newShot = 5;
-                // newShotPos[0] = tinygl_point(0, 0);
-                //tinygl_draw_line(tinygl_point(0, 0), tinygl_point(4,4), 1);
             }
        }
 }
