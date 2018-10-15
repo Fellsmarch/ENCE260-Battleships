@@ -98,9 +98,13 @@ int main(void)
     tinygl_init (1000);
     navswitch_init ();
     button_init();
+    ir_uart_init();
 
     Shot shot = createShot(2, 3);
     drawShot(shot, 1);
+
+    int sendMode = 1;
+    int receiveMode = 0;
 
     while(1) {
 
@@ -109,26 +113,37 @@ int main(void)
         button_update ();
         navswitch_update ();
 
-        if (navswitch_push_event_p (NAVSWITCH_NORTH)) {
-            moveShotNorth(&shot);
+        if (sendMode) {
+
+            if (navswitch_push_event_p (NAVSWITCH_NORTH)) {
+                moveShotNorth(&shot);
+            }
+            if (navswitch_push_event_p (NAVSWITCH_SOUTH)) {
+                moveShotSouth(&shot);
+            }
+            if (navswitch_push_event_p (NAVSWITCH_EAST)) {
+                moveShotEast(&shot);
+            }
+            if (navswitch_push_event_p (NAVSWITCH_WEST)) {
+                moveShotWest(&shot);
+            }
+
+            if (button_push_event_p (0)) {
+                ir_uart_putc(sendShot(&shot));
+                drawShot(shot, 0);
+                sendMode = 0;
+                receiveMode = 1;
+            }
         }
-        if (navswitch_push_event_p (NAVSWITCH_SOUTH)) {
-            moveShotSouth(&shot);
-        }
-        if (navswitch_push_event_p (NAVSWITCH_EAST)) {
-            moveShotEast(&shot);
-        }
-        if (navswitch_push_event_p (NAVSWITCH_WEST)) {
-            moveShotWest(&shot);
-        }
-        if (button_push_event_p (0)) {
-            ir_uart_putc(sendShot(&shot));
-        }
-        if (ir_uart_read_ready_p()) {
-            int coord = ir_uart_getc();
-            shot.col = coord & 0x0F;
-            shot.row = (coord & 0xF0) >> 4;
-            drawShot(shot, 1);
+        if (receiveMode) {
+            if (ir_uart_read_ready_p()) {
+                int coord = ir_uart_getc();
+                shot.col = coord & 0x0F;
+                shot.row = (coord & 0xF0) >> 4;
+                drawShot(shot, 1);
+                sendMode = 1;
+                receiveMode = 0;
+            }
         }
     }
 }
