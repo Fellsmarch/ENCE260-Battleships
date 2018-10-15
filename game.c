@@ -15,31 +15,14 @@
 #define FLASHING_LED_RATE 250
 #define WAIT_TIME 250
 
-int pointsIdentical(tinygl_point_t point1, tinygl_point_t point2)
-{
-    return (point1.x == point2.x && point1.y == point2.y);
-}
 
-int shipConflict(Ship ship)
-{
-    tinygl_point_t point1 = tinygl_point(ship.col1, ship.row1);
-    tinygl_point_t point2 = tinygl_point(ship.col2, ship.row2);
-    int i = 0;
-    for (; i < numSolidAtk; i++) {
-        if (pointsIdentical(solidPointsAtk[i], point1)
-        || pointsIdentical(solidPointsAtk[i], point2)) {
-            return true;
-        }
-    }
-    return false;
-}
 
 
 int main (void)
 {
-    solidPointsAtk[0] = tinygl_point(4,6); solidPointsAtk[1] = tinygl_point(3,6);
+    //solidPointsAtk[0] = tinygl_point(4,6); solidPointsAtk[1] = tinygl_point(3,6);
     // solidPointsAtk[2] = tinygl_point(2,4); solidPointsAtk[3] = tinygl_point(3,3);
-    numSolidAtk += 2; //numSolidAtk += 2;
+    //numSolidAtk += 2; //numSolidAtk += 2;
     //
     // flashingPointsAtk[0] = tinygl_point(1,5); flashingPointsAtk[1] = tinygl_point(3,0);
     // flashingPointsAtk[2] = tinygl_point(0,3); flashingPointsAtk[3] = tinygl_point(4,3);
@@ -125,6 +108,7 @@ int main (void)
             }
 
             if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
+                placeShips();
                 // int shipSize = 4;
                 // int newShip[4];
                 // int ship_placed = false;

@@ -83,4 +83,4 @@ void rotateShip(Ship *ship, int shipSize);
     @param numPoints number of points in the array
     @return this never returns
 */
- void setup (int* toReturn, int shipSize);//;, int* toDisplay, int numPoints)
+ void setup (int shipSize, int* toReturn);//;, int* toDisplay, int numPoints)

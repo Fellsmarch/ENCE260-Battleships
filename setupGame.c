@@ -30,13 +30,63 @@ Ship createShip(int col1, int row1, int col2, int row2)
     return ship;
 }
 
+void getPoints(tinygl_point_t* array, int* shipBounds) {
+    int col1 = shipBounds[0];
+    int row1 = shipBounds[1];
+    int col2 = shipBounds[2];
+    int row2 = shipBounds[3];
+    // int col1 = 3;
+    // int col2 = 3;
+    // int row1 = 1;
+    // int row2 = 4;
+    int i = 0;
 
+    if (col1 == col2) {
+        if (row1 < row2) {
+            while (row1 <= row2) {
+                array[i] = tinygl_point(col1, row1);
+                // addPoint(tinygl_point(col1, row1), SOLID, ATK);
+                row1++;
+                i++;
+            }
+
+        } else if (row1 >= row2) {
+            while (row1 >= row2) {
+                array[i] = tinygl_point(col1, row2);
+                // addPoint(tinygl_point(col1, row2), SOLID, ATK);
+                row2++;
+                i++;
+            }
+
+        }
+    } else {
+        if (col1 < col2) {
+            while (col1 <= col2) {
+                array[i] = tinygl_point(col1, row1);
+                // addPoint(tinygl_point(col1, row1), SOLID, ATK);
+                col1++;
+                i++;
+            }
+
+        } else if (col1 >= col2) {
+            while (col1 >= col2) {
+                array[i] = tinygl_point(col2, row1);
+                // addPoint(tinygl_point(col2, row1), SOLID, ATK);
+                col2++;
+                i++;
+            }
+
+        }
+    }
+
+}
 
 void makeShip(Ship ship, int toggle)
 {
     tinygl_draw_line(tinygl_point(ship.col1, ship.row1), tinygl_point(ship.col2, ship.row2), toggle);
     // tinygl_draw_point(tinygl_point(ship.col1, ship.row1), 1);
     // tinygl_draw_point(tinygl_point(ship.col2, ship.row2), 1);
+
 }
 
 int checkCol(int col1, int col2)
@@ -139,18 +189,57 @@ int shipConflict(Ship ship)
 
 void placeShips(void)
 {
-    int shipSize = 4;
+    int firstShipSize = 4;
+    int secondShipSize = 2;
     int secondShipPlaced = 0;
     Ship newShip;
-    setup(shipSize);
+
+    int* firstShipBounds[firstShipSize];
+    int* secondShipBounds[secondShipSize];
+    setup(firstShipSize, firstShipBounds);
+
+    tinygl_point_t firstShip[firstShipSize];
+    getPoints(firstShip, firstShipBounds);
+    // tinygl_point_t firstShip[firstShipSize] = {
+    //         tinygl_point(3, 1),
+    //         tinygl_point(3, 2),
+    //         tinygl_point(3, 3),
+    //         tinygl_point(3, 4)
+    //     };
+
+    int j = 0;
+    int i = 0;
+    for (; j < firstShipSize; j++) {
+        addPoint(firstShip[j], SOLID, ATK);
+    }
+
+
+
+    tinygl_point_t secondShip[secondShipSize];
 
     while(!secondShipPlaced) {
+        setup(secondShipSize, secondShipBounds);
+        getPoints(secondShip, secondShipBounds);
 
-
+        i = 0;
+        secondShipPlaced = 1;
+        for (; i < secondShipSize; i++) {
+            j = 0;
+            for (; j < firstShipSize; j++) {
+                if (secondShip[i].x == firstShip[j].x && secondShip[i].y == firstShip[j].y) {
+                    secondShipPlaced = 0;
+                }
+            }
+        }
     }
+    i = 0;
+    for (; i < secondShipSize; i++) {
+        addPoint(secondShip[i], SOLID, ATK);
+    }
+
 }
 
-void setup (int shipSize)//(int* toReturn, int shipSize)//, int* toDisplay, int numPoints)
+void setup (int shipSize, int* toReturn)//(int* toReturn, int shipSize)//, int* toDisplay, int numPoints)
 {
     // system_init ();
     // pacer_init (1000);
@@ -189,8 +278,10 @@ void setup (int shipSize)//(int* toReturn, int shipSize)//, int* toDisplay, int 
             }
             if (button_push_event_p (0)) {
                 makeShip(ship, 0);
+                //newShip = ship;
                 toReturn[0] = ship.col1; toReturn[1] = ship.row1;
                 toReturn[2] = ship.col2; toReturn[3] = ship.row2;
+                break;
                 // firstShip.col1 = ship.col1; firstShip.row1 = ship.row1;
                 // firstShip.col2 = ship.col2; firstShip.row2 = ship.row2;
                 // return toReturn;
