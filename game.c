@@ -64,6 +64,7 @@ int main (void)
     Shot shot = createShot(2, 3);
 
     int buttonCounter = 0;
+    int waitingOnReply = 0;
 
     while (1)
         {
@@ -87,7 +88,7 @@ int main (void)
             }
 
             //Flashes the flashing lights
-            // flashLights(ATK);
+            flashLights(currentScreen);
             // flashLights(DEF);
 
             //Quick flashes the new light/shot
@@ -120,29 +121,54 @@ int main (void)
 
                     if (button_push_event_p (0)) {
                         // tinygl_text("B");
-                        ir_uart_putc(sendShot(&shot));
-                        drawShot(shot, 0);
-                        while(1) {
-                            if (ir_uart_read_ready_p()) {
-                                tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
-                                char hit_miss = ir_uart_getc();
-                                if (hit_miss == 'H') {
-                                    //tinygl_text("H");
-                                    addPoint(tinyglShot, SOLID, DEF);
-                                    displayPoints(solidPointsDef, numSolidDef);
-                                    currentScreen = DEF;
-                                } else if (hit_miss == 'M') {
-                                    //tinygl_text("M");
-                                    addPoint(tinyglShot, FLASHING, DEF);
-                                    displayPoints(flashingPointsDef, numFlashingDef);
-                                    currentScreen = DEF;
-                                }
-                                // switchScreen(DEF);
-
-                                break;
-                            }
+                        if (!waitingOnReply) {
+                            ir_uart_putc(sendShot(&shot));
+                            drawShot(shot, 0);
+                            waitingOnReply = 1;
                         }
 
+                        // while(1) {
+                            // flashLights(currentScreen);
+                            // if (ir_uart_read_ready_p()) {
+                            //     tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
+                            //     char hit_miss = ir_uart_getc();
+                            //     if (hit_miss == 'H') {
+                            //         //tinygl_text("H");
+                            //         addPoint(tinyglShot, SOLID, ATK);
+                            //         // displayPoints(solidPointsDef, numSolidDef);
+                            //         currentScreen = DEF;
+                            //     } else if (hit_miss == 'M') {
+                            //         //tinygl_text("M");
+                            //         addPoint(tinyglShot, FLASHING, ATK);
+                            //         // displayPoints(flashingPointsDef, numFlashingDef);
+                            //         currentScreen = DEF;
+                            //     }
+                            //     // switchScreen(DEF);
+                            //
+                            //     break;
+                            // }
+                        // }
+
+                    }
+                    if (waitingOnReply) {
+                        if (ir_uart_read_ready_p()) {
+                            tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
+                            char hit_miss = ir_uart_getc();
+                            if (hit_miss == 'H') {
+                                //tinygl_text("H");
+                                // addPoint(tinyglShot, SOLID, ATK);
+                                // displayPoints(solidPointsDef, numSolidDef);
+                                currentScreen = DEF;
+                            } else if (hit_miss == 'M') {
+                                //tinygl_text("M");
+                                addPoint(tinyglShot, FLASHING, ATK);
+                                // displayPoints(flashingPointsDef, numFlashingDef);
+                                currentScreen = DEF;
+                            }
+                            // switchScreen(DEF);
+                            waitingOnReply = 0;
+                            // break;
+                        }
                     }
                 }
                 tinygl_update ();
@@ -162,11 +188,13 @@ int main (void)
                            ir_uart_putc('H');
                            currentScreen = ATK;
                            solidUpdated = 1;
+                           addPoint(tinyglShot, FLASHING, DEF);
                        } else {
                            ir_uart_putc('M');
                            currentScreen = ATK;
                            solidUpdated = 1;
-
+                           //Flash shot, don't add
+                           // addPoint(tinyglShot, FLASHING, DEF);
                        }
 
                        // shot.col = 2; shot.row = 3;
