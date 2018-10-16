@@ -64,24 +64,4 @@ To play BATTLESHIP you will need the following:
             5. Player 2 will now attack.
             6. Repeat until all ships of any player has been sunk.
             7. Game will declare a winner and loser.
-     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
