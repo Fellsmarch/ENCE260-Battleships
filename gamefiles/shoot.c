@@ -5,6 +5,7 @@
 #include "navswitch.h"
 #include "button.h"
 #include "ir_uart.h"
+#include "../lights.h"
 
 typedef struct shot_s Shot;
 struct shot_s {
@@ -101,7 +102,6 @@ int main(void)
     ir_uart_init();
 
     Shot shot = createShot(2, 3);
-    drawShot(shot, 1);
 
     int sendMode = 1;
     int receiveMode = 0;
@@ -113,6 +113,23 @@ int main(void)
         button_update ();
         navswitch_update ();
 
+/*
+        if (sendMode == 0 && receiveMode == 0) {
+            if (ir_uart_read_ready_p()) {
+                char slave = ir_uart_getc();
+                receiveMode = 1;
+                sendMode = 0;
+            }
+
+            if (button_push_event_p (0)) {
+                sendMode = 1;
+                receiveMode = 0;
+                drawShot(shot, 1);
+                ir_uart_putc('s');
+            }
+        }
+*/
+        tinygl_update ();
         if (sendMode) {
 
             if (navswitch_push_event_p (NAVSWITCH_NORTH)) {
@@ -131,18 +148,38 @@ int main(void)
             if (button_push_event_p (0)) {
                 ir_uart_putc(sendShot(&shot));
                 drawShot(shot, 0);
-                sendMode = 0;
-                receiveMode = 1;
+                if (ir_uart_read_ready_p()) {
+                    tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
+                    char hit_miss = ir_uart_getc();
+                    if (hit_miss == 'H') {
+                        addPoint(tinyglShot, 0, 0);
+                    } else if (hit_miss == 'M') {
+                        addPoint(tinyglShot, 1, 0);
+                    }
+                    sendMode = 0;
+                    receiveMode = 1;
+                }
+
             }
         }
+        tinygl_update ();
         if (receiveMode) {
+            addPoint(tinygl_point(3, 3) , 0, 0);
+            displayPoints(solidPointsDef, numSolidDef);
             if (ir_uart_read_ready_p()) {
                 int coord = ir_uart_getc();
                 shot.col = coord & 0x0F;
                 shot.row = (coord & 0xF0) >> 4;
-                drawShot(shot, 1);
+
+                //drawShot(shot, 1);
                 sendMode = 1;
                 receiveMode = 0;
+                tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
+                if (!in(tinyglShot, 0, 1)) {
+                    ir_uart_putc('H');
+                } else {
+                    ir_uart_putc('M');
+                }
             }
         }
     }
