@@ -18,6 +18,8 @@
 #define WAIT_TIME 250
 #define PACER_RATE 500
 
+//Magic number for text = 440 + (135 * numChars) (no spaces)
+
 int checkWin(void)
 {
     return (numSolidAtk >= TOTALSHIPSIZE);
@@ -25,13 +27,8 @@ int checkWin(void)
 
 void displayWin(void)
 {
-    // tinygl_text_speed_set (10);
-    tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
-    tinygl_text_dir_set (TINYGL_TEXT_DIR_ROTATE);
-    tinygl_font_set (&font3x5_1);
     tinygl_clear();
     tinygl_text("  YOU WIN");
-    // tinygl_text("!H!");
     while(1) {
         pacer_wait();
         tinygl_update();
@@ -45,16 +42,37 @@ int checkLoss(void)
 
 void displayLoss(void)
 {
-    tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
-    tinygl_text_dir_set (TINYGL_TEXT_DIR_ROTATE);
-    tinygl_font_set (&font3x5_1);
     tinygl_clear();
     tinygl_text("  YOU LOSE");
-    // tinygl_text("!H!");
     while(1) {
         pacer_wait();
         tinygl_update();
     }
+}
+
+void displayHit(void)
+{
+    tinygl_clear();
+    tinygl_text("  HIT");
+    int wait = 995;
+    while(wait > 0) {
+        pacer_wait();
+        tinygl_update();
+        wait--;
+    }
+}
+
+void displayMiss(void)
+{
+    tinygl_clear();
+    tinygl_text("  MISS");
+    int wait = 1125;
+    while(wait > 0) {
+        pacer_wait();
+        tinygl_update();
+        wait--;
+    }
+
 }
 
 int main (void)
@@ -71,6 +89,9 @@ int main (void)
     system_init ();
     pacer_init (PACER_RATE);
     tinygl_init (DISPLAY_TASK_RATE);
+    tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
+    tinygl_text_dir_set (TINYGL_TEXT_DIR_ROTATE);
+    tinygl_font_set (&font3x5_1);
     timer_init();
     navswitch_init();
     button_init();
@@ -83,6 +104,14 @@ int main (void)
 
     // int slave = 1;
 
+    tinygl_text("  BATTLESHIP");
+    int wait = 2060;
+    while (wait > 0) {
+        pacer_wait();
+        tinygl_update();
+        wait--;
+    }
+    tinygl_clear();
 
     placeShips();
     masterSlave();
@@ -202,11 +231,13 @@ int main (void)
                                 //tinygl_text("H");
                                 addPoint(tinyglShot, SOLID, ATK);
                                 // displayPoints(solidPointsDef, numSolidDef);
+                                displayHit();
                                 solidUpdated = 1;
                                 currentScreen = DEF;
                             } else if (hit_miss == 'M') {
                                 //tinygl_text("M");
                                 addPoint(tinyglShot, FLASHING, ATK);
+                                displayMiss();
                                 // displayPoints(flashingPointsDef, numFlashingDef);
                                 solidUpdated = 1;
                                 currentScreen = DEF;
@@ -241,6 +272,7 @@ int main (void)
                            solidUpdated = 1;
                            addPoint(tinyglShot, FLASHING, DEF);
                            shot.col = 2; shot.row = 3;
+                           displayHit();
 
                            if (checkLoss()) {
                                displayLoss();
@@ -251,6 +283,7 @@ int main (void)
                            currentScreen = ATK;
                            solidUpdated = 1;
                            shot.col = 2; shot.row = 3;
+                           displayMiss();
                            //Flash shot, don't add
                            // addPoint(tinyglShot, FLASHING, DEF);
                        }

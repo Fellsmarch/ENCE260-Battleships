@@ -5,7 +5,7 @@
 #include "navswitch.h"
 #include "button.h"
 #include "ir_uart.h"
-#include "../lights.h"
+#include "lights.h"
 #include "../fonts/font5x7_1.h"
 
 int slave = 1;
@@ -98,12 +98,35 @@ void masterSlave (void)
 {
     if (!ir_uart_read_ready_p()) {
         slave = 0;
-        ir_uart_putc('s');
+        ir_uart_putc('_');
+
+        tinygl_text("  WAIT");
+        while(!ir_uart_read_ready_p()) {
+            pacer_wait();
+            tinygl_update();
+        }
+        ir_uart_getc(); //We don't care about the character itself
+
+        tinygl_text("   ATTACK");
+        int wait = 1515;
+        while (wait > 0) {
+            pacer_wait();
+            tinygl_update();
+            wait--;
+        }
     } else {
         while(!ir_uart_read_ready_p()) {
                 continue;
             }
             ir_uart_getc(); //We don't care about its return
+            ir_uart_putc('_');
+            tinygl_text("  DEFENCE");
+            int wait = 1515;
+            while (wait > 0) {
+                pacer_wait();
+                tinygl_update();
+                wait--;
+            }
     }
 }
 
