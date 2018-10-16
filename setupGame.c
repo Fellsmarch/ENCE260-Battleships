@@ -14,6 +14,9 @@
 #include "setupGame.h"
 #include "lights.h"
 
+#define FIRSTSHIPSIZE 4
+#define SECONDSHIPSIZE 2
+
 typedef struct ship_s Ship;
 struct ship_s {
     int col1;
@@ -21,7 +24,6 @@ struct ship_s {
     int col2;
     int row2;
 };
-
 
 
 Ship createShip(int col1, int row1, int col2, int row2)
@@ -185,44 +187,40 @@ void placeShips(void)
     int secondShipSize = 2;
     int secondShipPlaced = 0;
 
-    int* firstShipBounds[firstShipSize];
-    int* secondShipBounds[secondShipSize];
-    setup(firstShipSize, firstShipBounds);
+    int* firstShipBounds[FIRSTSHIPSIZE];
+    int* secondShipBounds[SECONDSHIPSIZE];
 
-    tinygl_point_t firstShip[firstShipSize];
+    setup(FIRSTSHIPSIZE, firstShipBounds);
+
+    tinygl_point_t firstShip[FIRSTSHIPSIZE];
     getPoints(firstShip, firstShipBounds);
-    // tinygl_point_t firstShip[firstShipSize] = {
-    //         tinygl_point(3, 1),
-    //         tinygl_point(3, 2),
-    //         tinygl_point(3, 3),
-    //         tinygl_point(3, 4)
-    //     };
 
     int j = 0;
     int i = 0;
-    for (; j < firstShipSize; j++) {
+    for (; j < FIRSTSHIPSIZE; j++) {
         addPoint(firstShip[j], SOLID, DEF);
     }
 
+    tinygl_point_t secondShip[SECONDSHIPSIZE];
 
-
-    tinygl_point_t secondShip[secondShipSize];
-
+    //Get second ship points
     while(!secondShipPlaced) {
-        setup(secondShipSize, secondShipBounds);
+        setup(SECONDSHIPSIZE, secondShipBounds);
         getPoints(secondShip, secondShipBounds);
 
         i = 0;
         secondShipPlaced = 1;
-        for (; i < secondShipSize; i++) {
+        for (; i < SECONDSHIPSIZE; i++) {
             j = 0;
-            for (; j < firstShipSize; j++) {
+            for (; j < FIRSTSHIPSIZE; j++) {
                 if (secondShip[i].x == firstShip[j].x && secondShip[i].y == firstShip[j].y) {
                     secondShipPlaced = 0;
                 }
             }
         }
     }
+
+    //Add second ship points to display arrays
     i = 0;
     for (; i < secondShipSize; i++) {
         addPoint(secondShip[i], SOLID, DEF);
@@ -232,22 +230,19 @@ void placeShips(void)
 
 void setup (int shipSize, int* toReturn)//(int* toReturn, int shipSize)//, int* toDisplay, int numPoints)
 {
-    // system_init ();
-    // pacer_init (1000);
-    // tinygl_init (1000);
-    // navswitch_init ();
 
     Ship ship = createShip(2, 2, 2, shipSize + 1);
     makeShip(ship, 1);
 
     while (1)
         {
+            //TODO: Will need to pace these as well
             pacer_wait ();
             tinygl_update ();
             navswitch_update ();
             button_update ();
 
-            //Need to change so these only get checked every x loops
+            //TODO: Need to change so these only get checked every x loops
             if (navswitch_push_event_p (NAVSWITCH_NORTH)) {
                 moveShipNorth(&ship);
             }
@@ -269,17 +264,11 @@ void setup (int shipSize, int* toReturn)//(int* toReturn, int shipSize)//, int* 
             }
             if (button_push_event_p (0)) {
                 makeShip(ship, 0);
-                //newShip = ship;
                 toReturn[0] = ship.col1; toReturn[1] = ship.row1;
                 toReturn[2] = ship.col2; toReturn[3] = ship.row2;
                 break;
-                // firstShip.col1 = ship.col1; firstShip.row1 = ship.row1;
-                // firstShip.col2 = ship.col2; firstShip.row2 = ship.row2;
-                // return toReturn;
             }
 
-            // tinygl_draw_point(tinygl_point(4,6), 1);
-            // tinygl_draw_point(tinygl_point(3,6), 1);
             displayPoints(solidPointsDef, numSolidDef);
 
         }

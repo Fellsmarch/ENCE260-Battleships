@@ -13,6 +13,9 @@
 #include "pio.h"
 #include "lights.h"
 
+#define FIRSTSHIPSIZE 4
+#define SECONDSHIPSIZE 2
+
 typedef struct ship_s Ship;
 
 /** Create a ship struct from a set of coordinates

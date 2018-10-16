@@ -63,6 +63,30 @@ void hidePoints (tinygl_point_t points[], int numPoints)
     }
 }
 
+tinygl_point_t* getContainers(int** numPoints, int lightType, int screen)
+{
+    // tinygl_point_t* points;
+    if (lightType == SOLID && screen == ATK) {
+        // points = solidPointsAtk;
+        *numPoints = &numSolidAtk;
+        return solidPointsAtk;
+    } else if (lightType == FLASHING && screen == ATK) {
+        // points = flashingPointsAtk;
+        *numPoints = &numFlashingAtk;
+        return flashingPointsAtk;
+    } else if (lightType == SOLID && screen == DEF) {
+        // points = solidPointsDef;
+        *numPoints = &numSolidDef;
+        return solidPointsDef;
+    } else {//if (lightType == FLASHING && screen == DEF) { //Using else otherwise program thinks these variables are uninitialised
+        // points = flashingPointsDef;
+        *numPoints = &numFlashingDef;
+        return flashingPointsAtk;
+    }
+
+    // return points;
+}
+
 /** Adds a point to the corresponding array
     @param point point to add
     @param lightType type of light (flashing or solid)
@@ -76,19 +100,20 @@ void addPoint(tinygl_point_t point, int lightType, int screen)
     int* numPoints;
     int i = 0;
 
-    if (lightType == SOLID && screen == ATK) {
-        points = solidPointsAtk;
-        numPoints = &numSolidAtk;
-    } else if (lightType == FLASHING && screen == ATK) {
-        points = flashingPointsAtk;
-        numPoints = &numFlashingAtk;
-    } else if (lightType == SOLID && screen == DEF) {
-        points = solidPointsDef;
-        numPoints = &numSolidDef;
-    } else {//if (lightType == FLASHING && screen == DEF) { //Using else otherwise program thinks these variables are uninitialised
-        points = flashingPointsDef;
-        numPoints = &numFlashingDef;
-    }
+    points = getContainers(&numPoints, lightType, screen);
+    // if (lightType == SOLID && screen == ATK) {
+    //     points = solidPointsAtk;
+    //     numPoints = &numSolidAtk;
+    // } else if (lightType == FLASHING && screen == ATK) {
+    //     points = flashingPointsAtk;
+    //     numPoints = &numFlashingAtk;
+    // } else if (lightType == SOLID && screen == DEF) {
+    //     points = solidPointsDef;
+    //     numPoints = &numSolidDef;
+    // } else {//if (lightType == FLASHING && screen == DEF) { //Using else otherwise program thinks these variables are uninitialised
+    //     points = flashingPointsDef;
+    //     numPoints = &numFlashingDef;
+    // }
 
     //Could use the in function here but that would mean it has to check all the variables again
     bool pointFound = false;
@@ -103,25 +128,19 @@ void addPoint(tinygl_point_t point, int lightType, int screen)
     }
 }
 
+/** Returns true if the point is in the corresponding array
+    @param point point to add
+    @param lightType type of light (flashing or solid)
+    @param screen what screen the point should be added to (atk/def)
+    @return true or false.
+*/
 bool in(tinygl_point_t point, int lightType, int screen)
 { //lightType either SOLID (0) or FLASHING(1) screen either ATK (0) or DEF (1)
     tinygl_point_t* points;
     int* numPoints;
     int i = 0;
 
-    if (lightType == SOLID && screen == ATK) {
-        points = solidPointsAtk;
-        numPoints = &numSolidAtk;
-    } else if (lightType == FLASHING && screen == ATK) {
-        points = flashingPointsAtk;
-        numPoints = &numFlashingAtk;
-    } else if (lightType == SOLID && screen == DEF) {
-        points = solidPointsDef;
-        numPoints = &numSolidDef;
-    } else {//if (lightType == FLASHING && screen == DEF) { //Using else otherwise program thinks these variables are uninitialised
-        points = flashingPointsDef;
-        numPoints = &numFlashingDef;
-    }
+    points = getContainers(&numPoints, lightType, screen);
 
     //Checks whether the point is in the array already
     for (; i < *numPoints; i++) {
@@ -132,27 +151,71 @@ bool in(tinygl_point_t point, int lightType, int screen)
     return false;
 }
 
-void flashLights(int lightOn)
-{ //, int screen) { //Screen will be ATK/DEF
-    int flashWait_on = 100;
-    int flashWait_off = 0;
-    //int lightOn = 0; //Flashing lights on / off
-    static int duration = 100;
+#define DURATION 100 //This will probably have to be changed when pacing is done
+
+void flashLights(int screen)
+{
+    // static int duration = 100;
+    static int lightOn = 0;
+    static int flashWait_on = DURATION;
+    static int flashWait_off = 0;
+
+    tinygl_point_t* points;
+    int numPoints;
+
+    if (screen == ATK) {
+        points = flashingPointsAtk;
+        numPoints = numFlashingAtk;
+    } else if (screen == DEF) {
+        points = flashingPointsDef;
+        numPoints = numFlashingDef;
+    }
+
     if (lightOn) { //If flashing lights are currently on
         if (flashWait_on == 0) {
             lightOn = 0;
-            hidePoints(flashingPointsAtk, numFlashingAtk);
-            flashWait_off = duration;
+            hidePoints(points, numPoints);
+            flashWait_off = DURATION;
         } else {flashWait_on--;}
     } else { //If flashing lights are currently off
         if (flashWait_off == 0) {
             lightOn = 1;
-            displayPoints(flashingPointsAtk, numFlashingAtk);
-            flashWait_on = duration;
-        } else {
-            flashWait_off--;
-        }
+            displayPoints(points, numPoints);
+            flashWait_on = DURATION;
+        } else {flashWait_off--;}
     }
+}
+
+#define FAST_DURATION 40//This will probably have to be changed when pacing is done
+
+int fastFlash(tinygl_point_t point)
+{
+    // static int numFlashes = 5;
+    static int newShot_On = 0;
+    static int newShot_Off = FAST_DURATION;
+    static int newShotDisplaying = 0;
+
+    // if (numFlashses > 0) {
+    if (newShotDisplaying) {
+        if (newShot_On == 0) {
+            newShotDisplaying = 0;
+            hidePoints(&point, 1);
+            newShot_Off = FAST_DURATION;
+            return 1;
+        } else {newShot_On--;}
+        // newShot--;
+
+    } else {
+        if (newShot_Off == 0) {
+            newShotDisplaying = 1;
+            displayPoints(&point, 1);
+            newShot_On = FAST_DURATION;
+        } else {newShot_Off--;}
+    }
+
+    return 0;
+
+    // }
 }
 
 // void flashLights_fast() {
