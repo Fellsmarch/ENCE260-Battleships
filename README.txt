@@ -50,10 +50,10 @@ To play BATTLESHIP you will need the following:
         
         Screens:
             - Attack screen: Attacker can position and shoot their shot.
-                             Attack screen will also display hits as a solid light and misses as a flashing light.
+                             Attack screen will also display previous hits as a solid light and misses as a flashing light.
 
             - Defending screen: Defender will be shown their placed ships.
-                                Ships will flash if they have been hit by opponent.
+                                Ships will flash at a position if it has been hit by opponent.
                                 No buttons will function, defender must wait for opponents shot.
 
         Steps:
@@ -62,6 +62,6 @@ To play BATTLESHIP you will need the following:
             3. 'HIT or 'MISS' will appear on the screen.
             4. Screens will swap attacker and defender.
             5. Player 2 will now attack.
-            6. Repeat until all ships of any player has been sunk.
+            6. Repeat until all ships of any player have been sunk.
             7. Game will declare a winner and loser.
 
