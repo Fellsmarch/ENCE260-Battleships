@@ -107,8 +107,30 @@ int main(void)
 
     Shot shot = createShot(2, 3);
 
-    int sendMode = 1;
+    int sendMode = 0;
     int receiveMode = 0;
+
+    while (1) {
+        pacer_wait ();
+        button_update ();
+
+        if (sendMode == 0 && receiveMode == 0) {
+            if (ir_uart_read_ready_p()) {
+                char slave = ir_uart_getc();
+                receiveMode = 1;
+                sendMode = 0;
+                break;
+            }
+
+            if (button_push_event_p (0)) {
+                sendMode = 1;
+                receiveMode = 0;
+                drawShot(shot, 1);
+                ir_uart_putc('s');
+                break;
+            }
+        }
+    }
 
     while(1) {
 
@@ -117,22 +139,8 @@ int main(void)
         button_update ();
         navswitch_update ();
 
-/*
-        if (sendMode == 0 && receiveMode == 0) {
-            if (ir_uart_read_ready_p()) {
-                char slave = ir_uart_getc();
-                receiveMode = 1;
-                sendMode = 0;
-            }
 
-            if (button_push_event_p (0)) {
-                sendMode = 1;
-                receiveMode = 0;
-                drawShot(shot, 1);
-                ir_uart_putc('s');
-            }
-        }
-*/
+
         tinygl_update ();
         if (sendMode) {
 
@@ -157,13 +165,13 @@ int main(void)
                         tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
                         char hit_miss = ir_uart_getc();
                         if (hit_miss == 'H') {
-                            tinygl_text("H");
-                            // addPoint(tinyglShot, SOLID, DEF);
-                            // displayPoints(solidPointsDef, numSolidDef);
+                            //tinygl_text("H");
+                            addPoint(tinyglShot, SOLID, DEF);
+                            displayPoints(solidPointsDef, numSolidDef);
                         } else if (hit_miss == 'M') {
-                            tinygl_text("M");
-                            // addPoint(tinyglShot, FLASHING, DEF);
-                            // displayPoints(numFlashingDef, numFlashingDef);
+                            //tinygl_text("M");
+                            addPoint(tinyglShot, FLASHING, DEF);
+                            displayPoints(numFlashingDef, numFlashingDef);
                         }
                         sendMode = 0;
                         receiveMode = 1;
@@ -177,7 +185,7 @@ int main(void)
         tinygl_update ();
         if (receiveMode) {
             addPoint(tinygl_point(3, 3) , SOLID, DEF);
-            displayPoints(solidPointsDef, numSolidDef);
+            //displayPoints(solidPointsDef, numSolidDef);
             if (ir_uart_read_ready_p()) {
                 int coord = ir_uart_getc();
                 shot.col = coord & 0x0F;
@@ -186,7 +194,7 @@ int main(void)
                 //drawShot(shot, 1);
 
                 tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
-                if (!in(tinyglShot, SOLID, DEF)) {
+                if (in(tinyglShot, SOLID, DEF)) {
                     ir_uart_putc('H');
                     sendMode = 1;
                     receiveMode = 0;
