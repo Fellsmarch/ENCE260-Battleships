@@ -16,6 +16,7 @@
 
 #define FIRSTSHIPSIZE 4
 #define SECONDSHIPSIZE 2
+#define TOTALSHIPSIZE FIRSTSHIPSIZE + SECONDSHIPSIZE
 
 typedef struct ship_s Ship;
 struct ship_s {
@@ -183,8 +184,8 @@ int shipConflict(Ship ship)
 
 void placeShips(void)
 {
-    int firstShipSize = 4;
-    int secondShipSize = 2;
+    // int firstShipSize = 4;
+    // int secondShipSize = 2;
     int secondShipPlaced = 0;
 
     int* firstShipBounds[FIRSTSHIPSIZE];
@@ -222,7 +223,7 @@ void placeShips(void)
 
     //Add second ship points to display arrays
     i = 0;
-    for (; i < secondShipSize; i++) {
+    for (; i < SECONDSHIPSIZE; i++) {
         addPoint(secondShip[i], SOLID, DEF);
     }
 

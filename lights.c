@@ -81,7 +81,7 @@ tinygl_point_t* getContainers(int** numPoints, int lightType, int screen)
     } else {//if (lightType == FLASHING && screen == DEF) { //Using else otherwise program thinks these variables are uninitialised
         // points = flashingPointsDef;
         *numPoints = &numFlashingDef;
-        return flashingPointsAtk;
+        return flashingPointsDef;
     }
 
     // return points;

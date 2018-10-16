@@ -15,6 +15,7 @@
 
 #define FIRSTSHIPSIZE 4
 #define SECONDSHIPSIZE 2
+#define TOTALSHIPSIZE FIRSTSHIPSIZE + SECONDSHIPSIZE
 
 typedef struct ship_s Ship;
 

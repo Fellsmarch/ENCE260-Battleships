@@ -4,7 +4,8 @@
 #include "task.h"
 #include <stdio.h>
 #include "timer.h"
-#include "../fonts/font5x7_1.h"
+// #include "../fonts/font5x7_1.h"
+#include "../fonts/font3x5_1.h"
 #include <stdbool.h>
 #include "navswitch.h"
 #include "lights.h"
@@ -17,6 +18,44 @@
 #define WAIT_TIME 250
 #define PACER_RATE 500
 
+int checkWin(void)
+{
+    return (numSolidAtk >= TOTALSHIPSIZE);
+}
+
+void displayWin(void)
+{
+    // tinygl_text_speed_set (10);
+    tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
+    tinygl_text_dir_set (TINYGL_TEXT_DIR_ROTATE);
+    tinygl_font_set (&font3x5_1);
+    tinygl_clear();
+    tinygl_text("  YOU WIN");
+    // tinygl_text("!H!");
+    while(1) {
+        pacer_wait();
+        tinygl_update();
+    }
+}
+
+int checkLoss(void)
+{
+    return (numFlashingDef >= TOTALSHIPSIZE);
+}
+
+void displayLoss(void)
+{
+    tinygl_text_mode_set (TINYGL_TEXT_MODE_SCROLL);
+    tinygl_text_dir_set (TINYGL_TEXT_DIR_ROTATE);
+    tinygl_font_set (&font3x5_1);
+    tinygl_clear();
+    tinygl_text("  YOU LOSE");
+    // tinygl_text("!H!");
+    while(1) {
+        pacer_wait();
+        tinygl_update();
+    }
+}
 
 int main (void)
 {
@@ -53,7 +92,7 @@ int main (void)
         currentScreen = ATK;
     }
 
-    tinygl_font_set (&font5x7_1);
+    // tinygl_font_set (&font5x7_1);
     // if (slave) {
     //     tinygl_text("S");
     // } else {
@@ -66,6 +105,8 @@ int main (void)
     int buttonCounter = 0;
     int waitingOnReply = 0;
 
+    // displayWin();
+
     while (1)
         {
             pacer_wait ();
@@ -74,12 +115,14 @@ int main (void)
 
             //TODO: Make all these (solid + flashing) update at 250hz
             tinygl_update ();
-            if (1) {
+            if (solidUpdated) {
                 if (currentScreen == ATK) {
-                    hidePoints(solidPointsDef, numSolidDef);
+                    tinygl_clear();
+                    // hidePoints(solidPointsDef, numSolidDef);
                     displayPoints(solidPointsAtk, numSolidAtk);
                 } else if (currentScreen == DEF) {
-                    hidePoints(solidPointsAtk, numSolidAtk);
+                    tinygl_clear();
+                    // hidePoints(solidPointsAtk, numSolidAtk);
                     displayPoints(solidPointsDef, numSolidDef);
                 }
 
@@ -118,6 +161,7 @@ int main (void)
                     if (navswitch_push_event_p (NAVSWITCH_WEST)) {
                         moveShotWest(&shot);
                     }
+                    displayPoints(solidPointsAtk, numSolidAtk);
 
                     if (button_push_event_p (0)) {
                         // tinygl_text("B");
@@ -156,14 +200,21 @@ int main (void)
                             char hit_miss = ir_uart_getc();
                             if (hit_miss == 'H') {
                                 //tinygl_text("H");
-                                // addPoint(tinyglShot, SOLID, ATK);
+                                addPoint(tinyglShot, SOLID, ATK);
                                 // displayPoints(solidPointsDef, numSolidDef);
+                                solidUpdated = 1;
                                 currentScreen = DEF;
                             } else if (hit_miss == 'M') {
                                 //tinygl_text("M");
                                 addPoint(tinyglShot, FLASHING, ATK);
                                 // displayPoints(flashingPointsDef, numFlashingDef);
+                                solidUpdated = 1;
                                 currentScreen = DEF;
+                            }
+
+                            if (checkWin()) {
+                                displayWin();
+                                break;
                             }
                             // switchScreen(DEF);
                             waitingOnReply = 0;
@@ -177,7 +228,7 @@ int main (void)
                    // addPoint(tinygl_point(3, 3) , SOLID, DEF);
                    //displayPoints(solidPointsDef, numSolidDef);
                    if (ir_uart_read_ready_p()) {
-                       int coord = ir_uart_getc();
+                       char coord = ir_uart_getc();
                        shot.col = coord & 0x0F;
                        shot.row = (coord & 0xF0) >> 4;
 
@@ -189,10 +240,17 @@ int main (void)
                            currentScreen = ATK;
                            solidUpdated = 1;
                            addPoint(tinyglShot, FLASHING, DEF);
+                           shot.col = 2; shot.row = 3;
+
+                           if (checkLoss()) {
+                               displayLoss();
+                               break;
+                           }
                        } else {
                            ir_uart_putc('M');
                            currentScreen = ATK;
                            solidUpdated = 1;
+                           shot.col = 2; shot.row = 3;
                            //Flash shot, don't add
                            // addPoint(tinyglShot, FLASHING, DEF);
                        }
