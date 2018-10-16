@@ -6,6 +6,7 @@
 #include "button.h"
 #include "ir_uart.h"
 #include "../lights.h"
+#include "../fonts/font5x7_1.h"
 
 typedef struct shot_s Shot;
 struct shot_s {
@@ -101,6 +102,9 @@ int main(void)
     button_init();
     ir_uart_init();
 
+
+    tinygl_font_set (&font5x7_1);
+
     Shot shot = createShot(2, 3);
 
     int sendMode = 1;
@@ -148,23 +152,31 @@ int main(void)
             if (button_push_event_p (0)) {
                 ir_uart_putc(sendShot(&shot));
                 drawShot(shot, 0);
-                if (ir_uart_read_ready_p()) {
-                    tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
-                    char hit_miss = ir_uart_getc();
-                    if (hit_miss == 'H') {
-                        addPoint(tinyglShot, 0, 0);
-                    } else if (hit_miss == 'M') {
-                        addPoint(tinyglShot, 1, 0);
+                while(1) {
+                    if (ir_uart_read_ready_p()) {
+                        tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
+                        char hit_miss = ir_uart_getc();
+                        if (hit_miss == 'H') {
+                            tinygl_text("H");
+                            // addPoint(tinyglShot, SOLID, DEF);
+                            // displayPoints(solidPointsDef, numSolidDef);
+                        } else if (hit_miss == 'M') {
+                            tinygl_text("M");
+                            // addPoint(tinyglShot, FLASHING, DEF);
+                            // displayPoints(numFlashingDef, numFlashingDef);
+                        }
+                        sendMode = 0;
+                        receiveMode = 1;
+                        break;
                     }
-                    sendMode = 0;
-                    receiveMode = 1;
                 }
+
 
             }
         }
         tinygl_update ();
         if (receiveMode) {
-            addPoint(tinygl_point(3, 3) , 0, 0);
+            addPoint(tinygl_point(3, 3) , SOLID, DEF);
             displayPoints(solidPointsDef, numSolidDef);
             if (ir_uart_read_ready_p()) {
                 int coord = ir_uart_getc();
@@ -172,15 +184,20 @@ int main(void)
                 shot.row = (coord & 0xF0) >> 4;
 
                 //drawShot(shot, 1);
-                sendMode = 1;
-                receiveMode = 0;
+
                 tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
-                if (!in(tinyglShot, 0, 1)) {
+                if (!in(tinyglShot, SOLID, DEF)) {
                     ir_uart_putc('H');
+                    sendMode = 1;
+                    receiveMode = 0;
                 } else {
                     ir_uart_putc('M');
+                    sendMode = 1;
+                    receiveMode = 0;
                 }
             }
         }
     }
+    displayPoints(numFlashingDef, numFlashingDef);
+    displayPoints(numSolidDef, numSolidDef);
 }
