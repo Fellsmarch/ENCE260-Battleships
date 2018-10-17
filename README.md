@@ -33,17 +33,17 @@ To play BATTLESHIP you will need the following:
 ### Setup phase:
 
 
->**Buttons:**
->- Nav switch: Directional buttons used to position ship, push down to rotate ship.
->- Push button (S3): Places ship at desired location.
+**Buttons:**
+- Nav switch: Directional buttons used to position ship, push down to rotate ship.
+- Push button (S3): Places ship at desired location.
 
->**Steps:**
->1. Position and rotate your ship to desired location.
->2. Place ship 1.
->3. Ship 2 will appear, position where desired.
->4. Place ship 2.
->5. First player to complete the setup phase will become player 1.
->6. Player 1 wil see a 'WAIT' screen while player 2 continues to set up their ships.
+**Steps:**
+1. Position and rotate your ship to desired location.
+2. Place ship 1.
+3. Ship 2 will appear, position where desired.
+4. Place ship 2.
+5. First player to complete the setup phase will become player 1.
+6. Player 1 wil see a 'WAIT' screen while player 2 continues to set up their ships.
 
 
 ### Battle phase:
