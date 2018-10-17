@@ -1,10 +1,15 @@
 # BATTLESHIP    
 
 
-
 Welcome to the BATTLESHIP README.
 This README will help you run BATTLESHIP and teach you how to play. 
 
+
+## Objective
+
+BATTLESHIP is a guessing game for two players. Each player has two ships which are placed and marked on the LED screen. 
+The locations of their ships are concealed from their opponent (Custom screen divider). Players alternate turns calling "shots" 
+at the other player's ships, and the objective of the game is to destroy the opposing player's fleet. 
 
 ## Prerequisites
 
@@ -20,7 +25,7 @@ To play BATTLESHIP you will need the following:
 
 1. Open terminal.
 2. Navigate to the path of the BATTLESHIP source code.
-2. Run command 'make program'.
+2. Run command `make program`.
 
 
 ## How to play
