@@ -1,5 +1,5 @@
 
-#BATTLESHIP    
+# BATTLESHIP    
 
 
 
@@ -7,7 +7,7 @@ Welcome to the BATTLESHIP README.
 This README will help you run BATTLESHIP and teach you how to play. 
 
 
-##Prerequisites
+## Prerequisites
 
 To play BATTLESHIP you will need the following:
 
@@ -17,14 +17,14 @@ To play BATTLESHIP you will need the following:
     4. Custom screen divider (optional)
 
 
-##How to launch BATTLESHIP
+## How to launch BATTLESHIP
 
     1. Open terminal.
     2. Navigate to the path of the BATTLESHIP source code.
     2. Run command 'make program'.
 
 
-##How to play
+## How to play
 
 Setup phase:
 
