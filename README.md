@@ -33,11 +33,11 @@ To play BATTLESHIP you will need the following:
 ### Setup phase:
 
 
-Buttons:
+**Buttons:**
 - Nav switch: Directional buttons used to position ship, push down to rotate ship.
 - Push button (S3): Places ship at desired location.
 
-Steps:
+**Steps:**
 1. Position and rotate your ship to desired location.
 2. Place ship 1.
 3. Ship 2 will appear, position where desired.
@@ -49,11 +49,11 @@ Steps:
 ### Battle phase:
 
         
-Buttons:
+**Buttons:**
 - Nav switch: Directional buttons used to position your next shot.
 - Push button (S3): Shoots at desired location.
 
-Screens:
+**Screens:**
 - Attack screen: Attacker can position and shoot their shot.
                  Attack screen will also display previous hits as a solid light and misses as a flashing light.
 
@@ -61,9 +61,9 @@ Screens:
                     Ships will flash at a position if it has been hit by opponent.
                     No buttons will function, defender must wait for opponents shot.
 
-Steps:
+**Steps:**
 1. Player 1 will always attack first.
-2. 'ATTACK' and 'DEFENCE' will show on players screens according to their current action
+2. 'ATTACK' and 'DEFENCE' will show on players screens according to their current action.
 2. Attacker can position shot where desired and shoot.
 3. 'HIT or 'MISS' will appear on the screen.
 4. Screens will swap attacker and defender.
