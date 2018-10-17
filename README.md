@@ -71,3 +71,7 @@ To play BATTLESHIP you will need the following:
 6. Repeat until all ships of any player have been sunk.
 7. Game will declare a winner and loser.
 
+
+## Contributors
+* **Ryan Chen (rch141)
+* **Harrison Cook (hgc25)
