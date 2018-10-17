@@ -1,10 +1,16 @@
+/** @file   game.c
+    @author Harrison Cook, hgc25
+    @author Ryan Chen, rch141
+    @date   16 October 2018
+    @brief  Run and play battleship game
+*/
+
 #include "system.h"
 #include "pacer.h"
 #include "tinygl.h"
 #include "task.h"
 #include <stdio.h>
 #include "timer.h"
-// #include "../fonts/font5x7_1.h"
 #include "../fonts/font3x5_1.h"
 #include <stdbool.h>
 #include "navswitch.h"

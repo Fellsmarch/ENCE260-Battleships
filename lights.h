@@ -1,7 +1,8 @@
 /** @file   lights.h
     @author Harrison Cook, hgc25
+    @author Ryan Chen, rch141
     @date   11 October 2018
-    @brief  Display lights for battleships game
+    @brief  Display lights for battleship game
 
 */
 

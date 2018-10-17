@@ -1,4 +1,5 @@
 /** @file   setupGame.h
+    @author Harrison Cook, hgc25
     @author Ryan Chen, rch141
     @date   12 October 2018
     @brief  Do first time setup of battleships game

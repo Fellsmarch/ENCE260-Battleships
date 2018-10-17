@@ -2,7 +2,7 @@
 # Author: Harrison Cook, hgc25
 # Author: Ryan Chen, rch141
 # Date:   11 October 2018
-# Descr:  Makefile for game
+# Descr:  Makefile for Battleship game
 
 # Definitions.
 CC = avr-gcc

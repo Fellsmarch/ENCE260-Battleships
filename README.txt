@@ -1,10 +1,10 @@
 ------------------
-    BATTLESHIP    
+    BATTLESHIP
 ------------------
 
 
 Welcome to the BATTLESHIP README.
-This README will help you run BATTLESHIP and teach you how to play. 
+This README will help you run BATTLESHIP and teach you how to play.
 
 
 === Prerequisites ===
@@ -43,11 +43,11 @@ To play BATTLESHIP you will need the following:
 
     Battle phase:
     ----------------------------------------------------------------------------------------------------
-        
+
         Buttons:
             - Nav switch: Directional buttons used to position your next shot.
             - Push button (S3): Shoots at desired location.
-        
+
         Screens:
             - Attack screen: Attacker can position and shoot their shot.
                              Attack screen will also display previous hits as a solid light and misses as a flashing light.
@@ -64,4 +64,3 @@ To play BATTLESHIP you will need the following:
             5. Player 2 will now attack.
             6. Repeat until all ships of any player have been sunk.
             7. Game will declare a winner and loser.
-

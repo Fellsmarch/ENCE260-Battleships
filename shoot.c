@@ -1,3 +1,10 @@
+/** @file   shoot.c
+    @author Ryan Chen, rch141
+    @author Harrison Cook, hgc25
+    @date   15 October 2018
+    @brief  Functions to facilitate shooting of shots
+*/
+
 #include "system.h"
 #include "pacer.h"
 #include "tinygl.h"
