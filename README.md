@@ -43,6 +43,7 @@ Steps:
 3. Ship 2 will appear, position where desired.
 4. Place ship 2.
 5. First player to complete the setup phase will become player 1.
+6. Player 1 wil see a 'WAIT' screen while player 2 continues to set up their ships.
 
 
 ### Battle phase:
@@ -62,6 +63,7 @@ Screens:
 
 Steps:
 1. Player 1 will always attack first.
+2. 'ATTACK' and 'DEFENCE' will show on players screens according to their current action
 2. Attacker can position shot where desired and shoot.
 3. 'HIT or 'MISS' will appear on the screen.
 4. Screens will swap attacker and defender.
