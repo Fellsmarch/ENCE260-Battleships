@@ -189,8 +189,11 @@ void placeShips(void)
     // int secondShipSize = 2;
     int secondShipPlaced = 0;
 
-    int* firstShipBounds[FIRSTSHIPSIZE];
-    int* secondShipBounds[SECONDSHIPSIZE];
+
+    // int* firstShipBounds[FIRSTSHIPSIZE];
+    // int* secondShipBounds[SECONDSHIPSIZE];
+    int firstShipBounds[4];
+    int secondShipBounds[4];
 
     setup(FIRSTSHIPSIZE, firstShipBounds);
 

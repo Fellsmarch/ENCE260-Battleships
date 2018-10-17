@@ -81,6 +81,9 @@ void moveShipWest(Ship *ship);
 */
 void rotateShip(Ship *ship, int shipSize);
 
+//TODO: Function descriptor
+void placeShips(void);
+
 /** Allows the user to place a ship
     @param toReturn array to hold coordinates of the placed ship
     @param shipSize the length of the ship

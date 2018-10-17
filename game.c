@@ -10,6 +10,7 @@
 #include "tinygl.h"
 #include "task.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include "timer.h"
 #include "../fonts/font3x5_1.h"
 #include <stdbool.h>
@@ -23,6 +24,8 @@
 #define FLASHING_LED_RATE 250
 #define WAIT_TIME 250
 #define PACER_RATE 500
+
+
 
 //Magic number for text = 440 + (135 * numChars) (no spaces)
 
@@ -103,8 +106,8 @@ int main (void)
     button_init();
     ir_uart_init();
 
-    int newShotFlashes = 0;
-    tinygl_point_t newShot = tinygl_point(0, 0);
+    // int newShotFlashes = 0;
+    // tinygl_point_t newShot = tinygl_point(0, 0);
     int solidUpdated = 1;
     int currentScreen;
 
@@ -137,7 +140,7 @@ int main (void)
 
     Shot shot = createShot(2, 3);
 
-    int buttonCounter = 0;
+    // int buttonCounter = 0;
     int waitingOnReply = 0;
 
     // displayWin();
@@ -170,14 +173,14 @@ int main (void)
             // flashLights(DEF);
 
             //Quick flashes the new light/shot
-            if (newShotFlashes > 0) {
-                if (fastFlash(newShot)) {
-                    newShotFlashes--;
-                }
-                if (newShotFlashes == 0) {
-                    addPoint(newShot, FLASHING, DEF); //DEF hardcoded rn
-                }
-            }
+            // if (newShotFlashes > 0) {
+            //     if (fastFlash(newShot)) {
+            //         newShotFlashes--;
+            //     }
+            //     if (newShotFlashes == 0) {
+            //         addPoint(newShot, FLASHING, DEF); //DEF hardcoded rn
+            //     }
+            // }
 
             // if (buttonCounter == 2) {
                 if (currentScreen == ATK) {
@@ -320,4 +323,6 @@ int main (void)
             //     solidUpdated = 1;
             // }
        }
+
+       return EXIT_SUCCESS;
 }

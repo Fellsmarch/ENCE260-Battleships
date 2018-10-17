@@ -58,3 +58,6 @@ void addPoint(tinygl_point_t point, int lightType, int screen);
     @return true or false.
 */
 bool in(tinygl_point_t point, int lightType, int screen);
+
+//TODO: Function descriptor
+void flashLights(int screen);

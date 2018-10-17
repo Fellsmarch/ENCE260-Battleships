@@ -161,8 +161,8 @@ void flashLights(int screen)
     static int flashWait_on = DURATION;
     static int flashWait_off = 0;
 
-    tinygl_point_t* points;
-    int numPoints;
+    tinygl_point_t* points = 0;
+    int numPoints = 0;
 
     if (screen == ATK) {
         points = flashingPointsAtk;
