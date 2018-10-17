@@ -73,5 +73,5 @@ To play BATTLESHIP you will need the following:
 
 
 ## Contributors
-* **Ryan Chen (rch141)
-* **Harrison Cook (hgc25)
+* **Ryan Chen (rch141)**
+* **Harrison Cook (hgc25)**
