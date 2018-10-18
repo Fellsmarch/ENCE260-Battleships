@@ -28,24 +28,29 @@ Shot createShot(int col, int row) {
     return shot;
 }
 
+/* Draws the shot or erases the shot */
 void drawShot(Shot shot, int toggle)
 {
     tinygl_draw_point(tinygl_point(shot.col, shot.row), toggle);
 }
 
+/* Checks the col boundaries of the screen before 
+moving the shot */
 int checkShotCol(int col) {
     if (col < 0) {return 0;}
     else if (col > 4) {return 0;}
     else {return 1;}
 }
 
+/* Checks the row boundaries of the screen before 
+moving the shot */
 int checkShotRow(int row) {
     if (row < 0) {return 0;}
     else if (row > 6) {return 0;}
     else {return 1;}
 }
 
-
+/* Moves the shot north */
 void moveShotNorth(Shot *shot) {
 
     drawShot(*shot, 0);
@@ -58,6 +63,7 @@ void moveShotNorth(Shot *shot) {
 
 }
 
+/* Moves the shot south */
 void moveShotSouth(Shot *shot) {
 
     drawShot(*shot, 0);
@@ -70,6 +76,7 @@ void moveShotSouth(Shot *shot) {
 
 }
 
+/* Moves the shot east */
 void moveShotEast(Shot *shot) {
 
     drawShot(*shot, 0);
@@ -82,6 +89,7 @@ void moveShotEast(Shot *shot) {
 
 }
 
+/* Moves the shot west */
 void moveShotWest(Shot *shot) {
 
     drawShot(*shot, 0);
@@ -94,6 +102,7 @@ void moveShotWest(Shot *shot) {
 
 }
 
+/* Puts the col and row of shot into 8 bits to send to opponent */
 int sendShot(Shot *shot) {
     int toSend = 0;
     toSend |= shot->col;
@@ -101,6 +110,7 @@ int sendShot(Shot *shot) {
     return toSend;
 }
 
+/* Determines which player is player 1 and 2 */
 void masterSlave (void)
 {
     if (!ir_uart_read_ready_p()) {
@@ -136,148 +146,3 @@ void masterSlave (void)
             }
     }
 }
-
-
-
-
-
-    // while (1) {
-    //     pacer_wait ();
-    //     button_update ();
-    //
-    //     if (sendMode == 0 && receiveMode == 0) {
-    //         if (ir_uart_read_ready_p()) {
-    //             char slave = ir_uart_getc();
-    //             receiveMode = 1;
-    //             sendMode = 0;
-    //             break;
-    //         }
-    //
-    //         if (button_push_event_p (0)) {
-    //             sendMode = 1;
-    //             receiveMode = 0;
-    //             drawShot(shot, 1);
-    //             ir_uart_putc('s');
-    //             break;
-    //         }
-    //     }
-    // }
-// }
-
-
-// int main(void)
-// {
-//     system_init ();
-//     pacer_init (1000);
-//     tinygl_init (1000);
-//     navswitch_init ();
-//     button_init();
-//     ir_uart_init();
-//
-//
-//     tinygl_font_set (&font5x7_1);
-//
-//     Shot shot = createShot(2, 3);
-//
-//     int sendMode = 0;
-//     int receiveMode = 0;
-//
-//     while (1) {
-//         pacer_wait ();
-//         button_update ();
-//
-//         if (sendMode == 0 && receiveMode == 0) {
-//             if (ir_uart_read_ready_p()) {
-//                 char slave = ir_uart_getc();
-//                 receiveMode = 1;
-//                 sendMode = 0;
-//                 break;
-//             }
-//
-//             if (button_push_event_p (0)) {
-//                 sendMode = 1;
-//                 receiveMode = 0;
-//                 drawShot(shot, 1);
-//                 ir_uart_putc('s');
-//                 break;
-//             }
-//         }
-//     }
-//
-//     while(1) {
-//
-//         pacer_wait ();
-//         tinygl_update ();
-//         button_update ();
-//         navswitch_update ();
-//
-//
-//
-//         tinygl_update ();
-//         if (sendMode) {
-//
-//             if (navswitch_push_event_p (NAVSWITCH_NORTH)) {
-//                 moveShotNorth(&shot);
-//             }
-//             if (navswitch_push_event_p (NAVSWITCH_SOUTH)) {
-//                 moveShotSouth(&shot);
-//             }
-//             if (navswitch_push_event_p (NAVSWITCH_EAST)) {
-//                 moveShotEast(&shot);
-//             }
-//             if (navswitch_push_event_p (NAVSWITCH_WEST)) {
-//                 moveShotWest(&shot);
-//             }
-//
-//             if (button_push_event_p (0)) {
-//                 ir_uart_putc(sendShot(&shot));
-//                 drawShot(shot, 0);
-//                 while(1) {
-//                     if (ir_uart_read_ready_p()) {
-//                         tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
-//                         char hit_miss = ir_uart_getc();
-//                         if (hit_miss == 'H') {
-//                             //tinygl_text("H");
-//                             addPoint(tinyglShot, SOLID, DEF);
-//                             displayPoints(solidPointsDef, numSolidDef);
-//                         } else if (hit_miss == 'M') {
-//                             //tinygl_text("M");
-//                             addPoint(tinyglShot, FLASHING, DEF);
-//                             displayPoints(numFlashingDef, numFlashingDef);
-//                         }
-//                         sendMode = 0;
-//                         receiveMode = 1;
-//                         break;
-//                     }
-//                 }
-//
-//
-//             }
-//         }
-//         tinygl_update ();
-//         if (receiveMode) {
-//             addPoint(tinygl_point(3, 3) , SOLID, DEF);
-//             //displayPoints(solidPointsDef, numSolidDef);
-//             if (ir_uart_read_ready_p()) {
-//                 int coord = ir_uart_getc();
-//                 shot.col = coord & 0x0F;
-//                 shot.row = (coord & 0xF0) >> 4;
-//
-//                 //drawShot(shot, 1);
-//
-//                 tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
-//                 if (in(tinyglShot, SOLID, DEF)) {
-//                     ir_uart_putc('H');
-//                     sendMode = 1;
-//                     receiveMode = 0;
-//                 } else {
-//                     ir_uart_putc('M');
-//                     sendMode = 1;
-//                     receiveMode = 0;
-//                 }
-//             }
-//         }
-//     }
-//     displayPoints(numFlashingDef, numFlashingDef);
-//     displayPoints(numSolidDef, numSolidDef);
-// }
