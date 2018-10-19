@@ -5,43 +5,42 @@
     @brief  Display lights for battleship game
 */
 
-//Possibly create fast_flash and flash functions and maybe add wrappers to them to add_shot (return hit / miss)
 #include "system.h"
 #include "tinygl.h"
+#include "pacer.h"
 #include <stdio.h>
-#include "lights.h"
+#include <string.h>
 
+/** The duration that flashing lights will stay off/on for */
+#define DURATION 100
 /** The number of LEDs in the matrix  */
 #define NUM_LEDS 35
 /** Where a light is solid or flashing  */
 #define SOLID 0
 #define FLASHING 1
-/** Where the screen is attack or defense  */
+/** Where the screen is the attacking screen or defense screen */
 #define ATK 0
 #define DEF 1
+/** Game won or lost */
+#define LOSS 0
+#define WIN 1
 
+/** The arrays for the attacking screen, with seperate arrays for flashing and solid lights */
 int numFlashingAtk = 0;
 int numSolidAtk = 0;
 tinygl_point_t solidPointsAtk[NUM_LEDS];
 tinygl_point_t flashingPointsAtk[NUM_LEDS];
 
+/** The arrays for the defending screen, with seperate arrays for flashing and solid lights */
 int numFlashingDef = 0;
 int numSolidDef = 0;
 tinygl_point_t solidPointsDef[NUM_LEDS];
 tinygl_point_t flashingPointsDef[NUM_LEDS];
 
-// solidPointsAtk[0] = tinygl_point(4,6); solidPointsAtk[1] = tinygl_point(2,6);
-// solidPointsAtk[2] = tinygl_point(2,4); solidPointsAtk[3] = tinygl_point(3,3);
-// numSolidAtk += 2; numSolidAtk += 2;
-//
-// flashingPointsAtk[0] = tinygl_point(1,5); flashingPointsAtk[1] = tinygl_point(3,0);
-// flashingPointsAtk[2] = tinygl_point(0,3); flashingPointsAtk[3] = tinygl_point(4,3);
-// numFlashingAtk += 4;
-
-/** Display points on LED matrix
+/** Display points on the LED matrix using tinygl
     @param points array of points to display
     @param numPoints number points to display
-    @return this never returns.
+    @return this never returns
 */
 void displayPoints (tinygl_point_t points[], int numPoints)
 {
@@ -51,10 +50,10 @@ void displayPoints (tinygl_point_t points[], int numPoints)
     }
 }
 
-/** Hide points on LED matrix
+/** Hide points on the LED matrix using tinygl
     @param points array of points to hide
     @param numPoints number points to hide
-    @return this never returns.
+    @return this never returns
 */
 void hidePoints (tinygl_point_t points[], int numPoints)
 {
@@ -64,28 +63,27 @@ void hidePoints (tinygl_point_t points[], int numPoints)
     }
 }
 
+/** Finds the corresponding containers (arrays) for the requested light type and screen
+    @param numPoints the number of points in the array
+    @param lightType the type of light to requested, either FLASHING or SOLID
+    @param screen the screen requested, either DEF (defense) or ATK (attack)
+    @return a pointer to the corresponding array
+*/
 tinygl_point_t* getContainers(int** numPoints, int lightType, int screen)
 {
-    // tinygl_point_t* points;
     if (lightType == SOLID && screen == ATK) {
-        // points = solidPointsAtk;
         *numPoints = &numSolidAtk;
         return solidPointsAtk;
     } else if (lightType == FLASHING && screen == ATK) {
-        // points = flashingPointsAtk;
         *numPoints = &numFlashingAtk;
         return flashingPointsAtk;
     } else if (lightType == SOLID && screen == DEF) {
-        // points = solidPointsDef;
         *numPoints = &numSolidDef;
         return solidPointsDef;
-    } else {//if (lightType == FLASHING && screen == DEF) { //Using else otherwise program thinks these variables are uninitialised
-        // points = flashingPointsDef;
+    } else {
         *numPoints = &numFlashingDef;
         return flashingPointsDef;
     }
-
-    // return points;
 }
 
 /** Adds a point to the corresponding array
@@ -94,36 +92,23 @@ tinygl_point_t* getContainers(int** numPoints, int lightType, int screen)
     @param screen what screen the point should be added to (atk/def)
     @return this never returns.
 */
-//Could make a function that finds the array and returns a pointer to it instead of doing it in this function
 void addPoint(tinygl_point_t point, int lightType, int screen)
-{ //lightType either SOLID (0) or FLASHING(1) screen either ATK (0) or DEF (1)
+{
     tinygl_point_t* points;
     int* numPoints;
     int i = 0;
 
     points = getContainers(&numPoints, lightType, screen);
-    // if (lightType == SOLID && screen == ATK) {
-    //     points = solidPointsAtk;
-    //     numPoints = &numSolidAtk;
-    // } else if (lightType == FLASHING && screen == ATK) {
-    //     points = flashingPointsAtk;
-    //     numPoints = &numFlashingAtk;
-    // } else if (lightType == SOLID && screen == DEF) {
-    //     points = solidPointsDef;
-    //     numPoints = &numSolidDef;
-    // } else {//if (lightType == FLASHING && screen == DEF) { //Using else otherwise program thinks these variables are uninitialised
-    //     points = flashingPointsDef;
-    //     numPoints = &numFlashingDef;
-    // }
 
-    //Could use the in function here but that would mean it has to check all the variables again
+    //Checks if the point is already in the array, if it is, it does not add it
+    //Decided not to use the in function here as it would recheck all the containers
     bool pointFound = false;
     for (; i < *numPoints; i++) {
         if (point.x == points[i].x && point.y == points[i].y) {
             pointFound = true;
         }
     }
-    if (!pointFound) {
+    if (!pointFound) { //If point not in the array
         points[*numPoints] = point;
         *numPoints = *numPoints + 1;
     }
@@ -133,10 +118,10 @@ void addPoint(tinygl_point_t point, int lightType, int screen)
     @param point point to add
     @param lightType type of light (flashing or solid)
     @param screen what screen the point should be added to (atk/def)
-    @return true or false.
+    @return true (1) or false (0)
 */
-bool in(tinygl_point_t point, int lightType, int screen)
-{ //lightType either SOLID (0) or FLASHING(1) screen either ATK (0) or DEF (1)
+int in(tinygl_point_t point, int lightType, int screen)
+{
     tinygl_point_t* points;
     int* numPoints;
     int i = 0;
@@ -146,24 +131,27 @@ bool in(tinygl_point_t point, int lightType, int screen)
     //Checks whether the point is in the array already
     for (; i < *numPoints; i++) {
         if (point.x == points[i].x && point.y == points[i].y) {
-            return true;
+            return 1;
         }
     }
-    return false;
+    return 0;
 }
 
-#define DURATION 100 //This will probably have to be changed when pacing is done
-
+/** Flashes lights on and off
+    @param screen the screen to flash the lights for (ATK/DEF)
+    @return this never returns
+*/
 void flashLights(int screen)
 {
-    // static int duration = 100;
-    static int lightOn = 0;
-    static int flashWait_on = DURATION;
-    static int flashWait_off = 0;
+    //Need to be static as this function gets called hundreds of times
+    static int lightOn = 0; //Are the lights currently on
+    static int flashWait_on = DURATION; //The time to wait until lights are turned off
+    static int flashWait_off = 0; //The time to wait until lights are turned on
 
     tinygl_point_t* points = 0;
     int numPoints = 0;
 
+    //Gets the correct array to use
     if (screen == ATK) {
         points = flashingPointsAtk;
         numPoints = numFlashingAtk;
@@ -187,43 +175,35 @@ void flashLights(int screen)
     }
 }
 
-#define FAST_DURATION 40//This will probably have to be changed when pacing is done
-
-int fastFlash(tinygl_point_t point)
+/** Infinitly scrolls the result of the game on the display
+    @param result the game result (WIN or LOSS)
+    @return this never returns
+*/
+void displayResult(int result)
 {
-    // static int numFlashes = 5;
-    static int newShot_On = 0;
-    static int newShot_Off = FAST_DURATION;
-    static int newShotDisplaying = 0;
+    tinygl_clear();
+    if (result == LOSS) {tinygl_text("  YOU WIN");} //Two spaces so it appears to scroll from right
+    else {tinygl_text("  YOU LOSE");}
 
-    // if (numFlashses > 0) {
-    if (newShotDisplaying) {
-        if (newShot_On == 0) {
-            newShotDisplaying = 0;
-            hidePoints(&point, 1);
-            newShot_Off = FAST_DURATION;
-            return 1;
-        } else {newShot_On--;}
-        // newShot--;
-
-    } else {
-        if (newShot_Off == 0) {
-            newShotDisplaying = 1;
-            displayPoints(&point, 1);
-            newShot_On = FAST_DURATION;
-        } else {newShot_Off--;}
+    //Loop forever with scrolling result
+    while(1) {
+        pacer_wait();
+        tinygl_update();
     }
-
-    return 0;
-
-    // }
 }
 
-// void flashLights_fast() {
-//     int newShot = 0;
-//     int newShot_On = 0;
-//     int newShot_Off = 40;
-//     int newShotDisplaying = 0;
-//     tinygl_point_t newShotPos[1];
-//
-// }
+/** Displays some given text as scrolling text on the display
+    @param text the text to display
+    @return this never returns
+*/
+void displayText(char* text)
+{
+    int wait = 440 + (strlen(text) * 135); //Calculate the time it takes to do one scroll across hte screen
+    tinygl_clear();
+    tinygl_text(text);
+    while (wait > 0) {
+        pacer_wait();
+        tinygl_update();
+        wait--;
+    }
+}

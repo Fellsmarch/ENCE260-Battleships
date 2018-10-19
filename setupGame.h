@@ -18,23 +18,34 @@
 #define SECONDSHIPSIZE 2
 #define TOTALSHIPSIZE FIRSTSHIPSIZE + SECONDSHIPSIZE
 
+/**
+    Define a Ship struct, which holds four coordinates that are the bounds
+    of the ship
+*/
 typedef struct ship_s Ship;
 
-/** Create a ship struct from a set of coordinates
+/** Create a object of type ship struct from a set of coordinates
     @param col1 column coordinate for first point
     @param row1 row coordinate for first point
     @param col2 column coordinate for second point
     @param row2 row coordinate for second point
-    @return a ship object.
+    @return a new ship object.
 */
 Ship createShip(int col1, int row1, int col2, int row2);
 
-/** Display a ship on the screen
+/** Finds all points in a straight line between (and including) two given points
+    @param points the array of points between (and including) the given points
+    @param shipBounds the two points that make up the borders of the line
+    @return this never returns
+*/
+void getPoints(tinygl_point_t* array, int* shipBounds);
+
+/** Draws a ship on the screen
     @param ship the ship object to display
     @param toggle whether or not the ship is to be displayed or hidden
     @return this never returns
 */
-void makeShip(Ship ship, int toggle);
+void drawShip(Ship ship, int toggle);
 
 /** Checks whether a set of coordinates are inside the LED matrix column dimensions
     @param col1 column coordinate for first point
@@ -74,21 +85,22 @@ void moveShipEast(Ship *ship);
 */
 void moveShipWest(Ship *ship);
 
-/** Rotates a ship
+/** Rotates a ship on the LED matrix
     @param ship pointer to a ship object to rotateShip
     @param shipSize the length of the ship
     @return this never returns
 */
 void rotateShip(Ship *ship, int shipSize);
 
-//TODO: Function descriptor
-void placeShips(void);
-
-/** Allows the user to place a ship
-    @param toReturn array to hold coordinates of the placed ship
+/** Allows the user to place a ship and fills toReturn with the coordinates of the placed ship
     @param shipSize the length of the ship
-    @param toDisplay array of lights to display to ensure that already placed ships are not removed
-    @param numPoints number of points in the array
+    @param toReturn array to hold coordinates of the placed ship
     @return this never returns
 */
- void setup (int shipSize, int* toReturn);//;, int* toDisplay, int numPoints)
+ void setupShip(int shipSize, int* toReturn);//;, int* toDisplay, int numPoints)
+
+ /** The function which places both of the ships
+     @param this takes no parameters
+     @return this never returns
+ */
+ void placeShips(void);

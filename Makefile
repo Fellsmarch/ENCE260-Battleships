@@ -20,7 +20,7 @@ all: game.out
 game.o: game.c ../../drivers/avr/system.h ../../utils/tinygl.h ../../drivers/display.h ../../fonts/font3x5_1.h ../../utils/font.h ../../drivers/avr/timer.h ../../drivers/navswitch.h lights.h setupGame.h shoot.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-lights.o: lights.c ../../drivers/avr/system.h ../../utils/tinygl.h lights.h
+lights.o: lights.c ../../drivers/avr/system.h ../../utils/tinygl.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 setupGame.o: setupGame.c setupGame.h ../../drivers/avr/system.h ../../drivers/avr/system.h ../../utils/tinygl.h ../../drivers/display.h ../../drivers/avr/pio.h lights.h

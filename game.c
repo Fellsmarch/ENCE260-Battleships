@@ -13,88 +13,17 @@
 #include <stdlib.h>
 #include "timer.h"
 #include "../fonts/font3x5_1.h"
-#include <stdbool.h>
 #include "navswitch.h"
 #include "lights.h"
 #include "setupGame.h"
 #include "shoot.h"
 
 #define DISPLAY_TASK_RATE 250
-#define SOLID_LED_RATE 250
-#define FLASHING_LED_RATE 250
-#define WAIT_TIME 250
 #define PACER_RATE 500
-
-
-
-//Magic number for text = 440 + (135 * numChars) (no spaces)
-
-int checkWin(void)
-{
-    return (numSolidAtk >= TOTALSHIPSIZE);
-}
-
-void displayWin(void)
-{
-    tinygl_clear();
-    tinygl_text("  YOU WIN");
-    while(1) {
-        pacer_wait();
-        tinygl_update();
-    }
-}
-
-int checkLoss(void)
-{
-    return (numFlashingDef >= TOTALSHIPSIZE);
-}
-
-void displayLoss(void)
-{
-    tinygl_clear();
-    tinygl_text("  YOU LOSE");
-    while(1) {
-        pacer_wait();
-        tinygl_update();
-    }
-}
-
-void displayHit(void)
-{
-    tinygl_clear();
-    tinygl_text("  HIT");
-    int wait = 995;
-    while(wait > 0) {
-        pacer_wait();
-        tinygl_update();
-        wait--;
-    }
-}
-
-void displayMiss(void)
-{
-    tinygl_clear();
-    tinygl_text("  MISS");
-    int wait = 1125;
-    while(wait > 0) {
-        pacer_wait();
-        tinygl_update();
-        wait--;
-    }
-
-}
 
 int main (void)
 {
-    //solidPointsAtk[0] = tinygl_point(4,6); solidPointsAtk[1] = tinygl_point(3,6);
-    // solidPointsAtk[2] = tinygl_point(2,4); solidPointsAtk[3] = tinygl_point(3,3);
-    //numSolidAtk += 2; //numSolidAtk += 2;
-    //
-    // flashingPointsAtk[0] = tinygl_point(1,5); flashingPointsAtk[1] = tinygl_point(3,0);
-    // flashingPointsAtk[2] = tinygl_point(0,3); flashingPointsAtk[3] = tinygl_point(4,3);
-    // numFlashingAtk += 4;
-
-    //Initialisation
+    //Initialisation, including tinygl text options
     system_init ();
     pacer_init (PACER_RATE);
     tinygl_init (DISPLAY_TASK_RATE);
@@ -106,223 +35,79 @@ int main (void)
     button_init();
     ir_uart_init();
 
-    // int newShotFlashes = 0;
-    // tinygl_point_t newShot = tinygl_point(0, 0);
+    //A boolean (ish) to tell the program that the solid lights have been
+    //updated and hence re-displayed
     int solidUpdated = 1;
+    //The current screen the user is on/seeing (DEF or ATK)
     int currentScreen;
 
-    // int slave = 1;
-
-    tinygl_text("  BATTLESHIP");
-    int wait = 2060;
-    while (wait > 0) {
-        pacer_wait();
-        tinygl_update();
-        wait--;
-    }
+    //Display the title screen
+    displayText("  BATTLESHIP"); //Two spaces so it appears to scroll from the right
     tinygl_clear();
 
+    //Get the users to place the ships
     placeShips();
-    masterSlave();
-    if (slave) {
-        currentScreen = DEF;
-    } else {
-        currentScreen = ATK;
-    }
 
-    // tinygl_font_set (&font5x7_1);
-    // if (slave) {
-    //     tinygl_text("S");
-    // } else {
-    //     tinygl_text("M");
-    // }
-    // tinygl_update();
+    //Work out which player will be the master and start attacking first and
+    //which will be the slave and start defending first
+    currentScreen = masterSlave();
 
+    //Create the shot object to be used
     Shot shot = createShot(2, 3);
+    int waitingOnReply = 0; //If a shot has been sent and we are waiting on hit result
 
-    // int buttonCounter = 0;
-    int waitingOnReply = 0;
-
-    // displayWin();
 
     while (1)
         {
-            pacer_wait ();
-            navswitch_update ();
+            pacer_wait();
+            navswitch_update();
             button_update();
+            tinygl_update();
+            flashLights(currentScreen);
 
-            //TODO: Make all these (solid + flashing) update at 250hz
-            tinygl_update ();
             if (solidUpdated) {
                 if (currentScreen == ATK) {
                     tinygl_clear();
-                    // hidePoints(solidPointsDef, numSolidDef);
                     displayPoints(solidPointsAtk, numSolidAtk);
                 } else if (currentScreen == DEF) {
                     tinygl_clear();
-                    // hidePoints(solidPointsAtk, numSolidAtk);
                     displayPoints(solidPointsDef, numSolidDef);
                 }
-
                 solidUpdated = 0;
-                // solidUpdated = 1;
             }
 
-            //Flashes the flashing lights
-            flashLights(currentScreen);
-            // flashLights(DEF);
+            if (currentScreen == ATK) {
+                drawShot(shot, 1); //Ensure the shot is shown on the screen
+                moveShot(&shot); //Moves the shot (if the user moves it)
+                displayPoints(solidPointsAtk, numSolidAtk); //Ensures the correct points are being displayed
 
-            //Quick flashes the new light/shot
-            // if (newShotFlashes > 0) {
-            //     if (fastFlash(newShot)) {
-            //         newShotFlashes--;
-            //     }
-            //     if (newShotFlashes == 0) {
-            //         addPoint(newShot, FLASHING, DEF); //DEF hardcoded rn
-            //     }
-            // }
+                //User confirms shot placement and we check that shot hasn't been sent already
+                if (button_push_event_p(0) && !waitingOnReply) {
+                    ir_uart_putc(formatShot(&shot));
+                    drawShot(shot, 0);
+                    waitingOnReply = 1;
+                }
 
-            // if (buttonCounter == 2) {
-                if (currentScreen == ATK) {
-
-                    drawShot(shot, 1);
-
-                    if (navswitch_push_event_p (NAVSWITCH_NORTH)) {
-                        moveShotNorth(&shot);
-                    }
-                    if (navswitch_push_event_p (NAVSWITCH_SOUTH)) {
-                        moveShotSouth(&shot);
-                    }
-                    if (navswitch_push_event_p (NAVSWITCH_EAST)) {
-                        moveShotEast(&shot);
-                    }
-                    if (navswitch_push_event_p (NAVSWITCH_WEST)) {
-                        moveShotWest(&shot);
-                    }
-                    displayPoints(solidPointsAtk, numSolidAtk);
-
-                    if (button_push_event_p (0)) {
-                        // tinygl_text("B");
-                        if (!waitingOnReply) {
-                            ir_uart_putc(sendShot(&shot));
-                            drawShot(shot, 0);
-                            waitingOnReply = 1;
-                        }
-
-                        // while(1) {
-                            // flashLights(currentScreen);
-                            // if (ir_uart_read_ready_p()) {
-                            //     tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
-                            //     char hit_miss = ir_uart_getc();
-                            //     if (hit_miss == 'H') {
-                            //         //tinygl_text("H");
-                            //         addPoint(tinyglShot, SOLID, ATK);
-                            //         // displayPoints(solidPointsDef, numSolidDef);
-                            //         currentScreen = DEF;
-                            //     } else if (hit_miss == 'M') {
-                            //         //tinygl_text("M");
-                            //         addPoint(tinyglShot, FLASHING, ATK);
-                            //         // displayPoints(flashingPointsDef, numFlashingDef);
-                            //         currentScreen = DEF;
-                            //     }
-                            //     // switchScreen(DEF);
-                            //
-                            //     break;
-                            // }
-                        // }
-
-                    }
-                    if (waitingOnReply) {
-                        if (ir_uart_read_ready_p()) {
-                            tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
-                            char hit_miss = ir_uart_getc();
-                            if (hit_miss == 'H') {
-                                //tinygl_text("H");
-                                addPoint(tinyglShot, SOLID, ATK);
-                                // displayPoints(solidPointsDef, numSolidDef);
-                                displayHit();
-                                solidUpdated = 1;
-                                currentScreen = DEF;
-                            } else if (hit_miss == 'M') {
-                                //tinygl_text("M");
-                                addPoint(tinyglShot, FLASHING, ATK);
-                                displayMiss();
-                                // displayPoints(flashingPointsDef, numFlashingDef);
-                                solidUpdated = 1;
-                                currentScreen = DEF;
-                            }
-
-                            if (checkWin()) {
-                                displayWin();
-                                break;
-                            }
-                            // switchScreen(DEF);
-                            waitingOnReply = 0;
-                            // break;
-                        }
+                //If we have sent the shot already
+                if (waitingOnReply) {
+                    if (ir_uart_read_ready_p()) { //If something has been received
+                        currentScreen = processResponse(shot);
+                        solidUpdated = 1;
+                        if (checkWin()) {displayResult(WIN);}
+                        waitingOnReply = 0;
                     }
                 }
-                tinygl_update ();
+            }
+            tinygl_update(); //Updates here to ensure no drawing errors
 
-                if (currentScreen == DEF) {
-                   // addPoint(tinygl_point(3, 3) , SOLID, DEF);
-                   //displayPoints(solidPointsDef, numSolidDef);
-                   if (ir_uart_read_ready_p()) {
-                       char coord = ir_uart_getc();
-                       shot.col = coord & 0x0F;
-                       shot.row = (coord & 0xF0) >> 4;
-
-                       //drawShot(shot, 1);
-
-                       tinygl_point_t tinyglShot = tinygl_point(shot.col, shot.row);
-                       if (in(tinyglShot, SOLID, DEF)) {
-                           ir_uart_putc('H');
-                           currentScreen = ATK;
-                           solidUpdated = 1;
-                           addPoint(tinyglShot, FLASHING, DEF);
-                           shot.col = 2; shot.row = 3;
-                           displayHit();
-
-                           if (checkLoss()) {
-                               displayLoss();
-                               break;
-                           }
-                       } else {
-                           ir_uart_putc('M');
-                           currentScreen = ATK;
-                           solidUpdated = 1;
-                           shot.col = 2; shot.row = 3;
-                           displayMiss();
-                           //Flash shot, don't add
-                           // addPoint(tinyglShot, FLASHING, DEF);
-                       }
-
-                       // shot.col = 2; shot.row = 3;
-                   }
+            if (currentScreen == DEF) {
+               if (ir_uart_read_ready_p()) {
+                   processShot();
+                   currentScreen = ATK;
+                   shot.col = 2; shot.row = 3; //Reset shot position before switching to ATK screen
+                   solidUpdated = 1;
                }
-               tinygl_update ();
-
-            //     buttonCounter = 2;
-            // } else {buttonCounter++;}
-
-
-
-
-
-
-
-
-            // if (navswitch_push_event_p(NAVSWITCH_PUSH)) {
-            //     placeShips();
-            //
-            //     // displayPoints(solidPointsAtk, numSolidAtk);
-            //     if (in(tinygl_point(0, 0), SOLID, DEF)) {
-            //         addPoint(tinygl_point(4,6), SOLID, DEF);
-            //     }
-            //     //displayPoints(solidPointsDef, numSolidDef);
-            //     solidUpdated = 1;
-            // }
+           }
        }
-
        return EXIT_SUCCESS;
 }
